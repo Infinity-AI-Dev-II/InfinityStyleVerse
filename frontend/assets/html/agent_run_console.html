@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Agent Run Console</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+        <style>
+  body {
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .bg-custom-dark {
+    background-color: #222222;
+  }
+
+  .bg-custom-accent {
+    background-color: #c19a6b;
+  }
+
+  .text-custom-accent {
+    color: #c19a6b;
+  }
+.sidebar{
+        width: auto;
+        background-color: #222;
+        color: #fff;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        padding: 18px;
+    }
+
+  .sidebar a.active {
+    background-color: #c19a6b;
+    color: white;
+    font-weight: bold;
+  }
+
+  .sidebar a.active i {
+    color: #ffffff;
+  }
+
+  /* Optional: smooth transition for sidebar */
+  @media (max-width: 767px) {
+    .sidebar {
+      transition: all 0.3s ease-in-out;
+    }
+  }
+</style>
+    </head>
+<body class="flex h-screen">
+    <div
+        class="sidebar w-64 h-screen bg-custom-dark text-custom-light p-6 flex flex-col justify-between shadow-2xl overflow-hidden">
+        <div>
+            <div class="text-[20px] font-bold mb-8 font-['Inter'] text-[#c19a6b] text-center">StyleVerse</div>
+            <nav class="space-y-3 text-sm font-['DM Sans']">
+                <a href="#" id="dashboard-link"
+                    class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fas fa-th-large text-lg w-5"></i>
+                    <span>Dashboard</span>
+                    <i id="dashboard-arrow"
+                        class="fa-solid fa-angle-right w-3 h-3 ml-auto transform transition-transform duration-200"></i>
+                </a>
+                <div id="dashboard-submenu" class="ml-6 space-y-3 hidden text-xs">
+                    <a href="user.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-users text-lg w-5"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="roles.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-user-shield text-lg w-5"></i>
+                        <span>Roles</span>
+                    </a>
+                    <a href="permission.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-unlock text-lg w-5"></i>
+                        <span>Permissions</span>
+                    </a>
+                </div>
+                <a href="policy&attribution.html" id="experiments-link"
+                    class="flex items-center space-x-4 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-flask text-lg w-5"></i>
+                    <span>Experiments</span>
+                </a>
+                <a href="policy&attribution.html" id="policy-link"
+                    class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-scroll text-lg w-5"></i>
+                    <span>Policy & Attribution</span>
+                </a>
+                <a href="#" id="agent-run-link"
+                    class="flex items-center space-x-4 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10 active">
+                    <i class="fa-solid fa-robot text-lg w-5"></i>
+                    <span>Agent Run Console</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="mt-8 text-xs font-['DM Sans']">
+            <a href="#"
+                class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 bg-gray-500 bg-opacity-30 hover:bg-opacity-50">
+                <i class="fa-solid fa-right-from-bracket text-lg w-5"></i>
+                <span>Logout</span>
+            </a>
+            <div class="flex items-center mt-4 p-2 space-x-4">
+                <img class="w-8 h-8 rounded-full border-2 border-white" src="Image.png" alt="User Profile Picture">
+                <span class="text-xs font-medium">Jenifer winget</span>
+            </div>
+        </div>
+    </div>
+
+
+         <!-- Main Content -->
+        <div class="main-content flex-1 p-4 md:p-6">
+         <h1 class="text-2xl font-bold mb-6 bg-custom-dark text-white px-4 py-2 rounded-lg shadow">Agent Run Console</h1>
+
+         <!--Launch Run Form-->
+         <section class="mb-8 bg-white p-6 rounded-lg shadow">
+          <h2 class="text-lg font-semibold mb-4 text-custom-accent">Launch New Run</h2>
+          <form id="Launch-Run-Form" class="space-y-4">
+            <div>
+            <label class="block font-medium mb-1">Workflow Name</label>
+            <input type="text" id="workflow-name" required class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-custom-accent focus:outline-none"/>
+          </div>
+
+          <div>
+            <label class="block font-medium mb-1">Inputs JSON</label>
+            <textarea id="inputs-json" rows="3" placeholder= '{"prompt" :"new design"}' class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-custom-accent focus:outline-none"></textarea>
+          </div>
+
+          <button type="submit" class="bg-custom-accent text-white px-4 py-2 rounded hover:bg-opacity-90 transition">Launch Run</button>
+          </form>
+          
+        <!-- Status Message -->
+          <div id="status-message" class="mt-3 font-medium"></div>
+        
+         </section>
+
+         <!--Recent Runs Table-->
+        <section class="mb-8 bg-white p-6 rounded-lg shadow">
+          <h2 class="text-lg font-semibold mb-4 text-custom-accent">Recent Runs</h2>
+          <table class="w-full border-collapse border text-sm">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="border px-3 py-2 text-left">Run ID</th>
+                <th class="border px-3 py-2 text-left">Status</th>
+                <th class="border px-3 py-2 text-left">Started At</th>
+              </tr>
+            </thead>
+            <tbody id="runs-table-body"></tbody>
+          </table>
+        </section>
+
+        
+        <!-- Blackboard Inspector -->
+       <section class="mb-8 bg-white p-6 rounded-lg shadow">
+          <h2 class="text-lg font-semibold mb-4 text-custom-accent">Blackboard Inspector</h2>
+          <div id="blackboard" class="text-sm text-gray-800"></div>
+        </section>
+
+
+      <!-- Timeline Messages -->
+        <section class="bg-white p-6 rounded-lg shadow">
+      <h2 class="text-lg font-semibold mb-4 text-custom-accent">Timeline Messages</h2>
+      <div id="timeline" class="space-y-2 text-sm"></div>
+    </section>
+
+
+     <script>
+  document.addEventListener("DOMContentLoaded", () => {
+
+    const dashboardLink = document.getElementById("dashboard-link");
+    const dashboardArrow = document.getElementById("dashboard-arrow");
+    const dashboardSubmenu = document.getElementById("dashboard-submenu");
+
+    dashboardLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      dashboardSubmenu.classList.toggle("hidden");
+      dashboardArrow.classList.toggle("rotate-90");
+    });
+
+
+    const sidebarLinks = document.querySelectorAll(".sidebar a");
+    const currentPath = window.location.pathname.split("/").pop();
+
+    sidebarLinks.forEach(link => {
+      link.addEventListener("click", () => {
+        sidebarLinks.forEach(l => l.classList.remove("active"));
+        link.classList.add("active");
+      });
+
+      if (link.getAttribute("href") === currentPath) {
+        link.classList.add("active");
+      }
+    });
+
+    // Form submission logic
+    const form = document.getElementById("Launch-Run-Form");
+    const statusMessage = document.getElementById("status-message");
+    const runsTableBody = document.getElementById("runs-table-body");
+    const blackboardDiv = document.getElementById("blackboard");
+    const timelineDiv = document.getElementById("timeline");
+
+    let runCounter = 1;
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const workflowName = document.getElementById("workflow-name").value;
+      const inputsJson = document.getElementById("inputs-json").value;
+
+      let inputs;
+      try {
+        inputs = JSON.parse(inputsJson);
+      } catch (error) {
+        statusMessage.textContent = "Invalid JSON in Inputs";
+        statusMessage.style.color = "red";
+        return;
+      }
+
+      fetch("/meta/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          task: workflowName,
+          inputs: inputs,
+          version: "v1",
+          tenant: "default",
+          caller: "frontend"
+        })
+      })
+      .then(response => response.json())
+      .then(data => { 
+      // You can log backend response if needed
+      console.log("Backend response:", data);
+        const runId = data.runId || "run-" + runCounter++;
+        const startedAt = data.startedAt || new Date().toLocaleString();
+
+        statusMessage.textContent = "Run started successfully!";
+        statusMessage.style.color = "green";
+
+        runsTableBody.innerHTML += `
+          <tr>
+            <td>${runId}</td>
+            <td>Running</td>
+            <td>${startedAt}</td>
+          </tr>
+        `;
+
+        blackboardDiv.innerHTML = `
+          <h3>Run ID: ${runId}</h3>
+          <p><strong>Workflow Name:</strong> ${workflowName}</p>
+          <p><strong>Inputs:</strong> <pre>${JSON.stringify(inputs, null, 2)}</pre></p>
+          <p><strong>Status:</strong> Running</p>
+        `;
+
+        const time = new Date().toLocaleTimeString();
+        timelineDiv.innerHTML += `
+          <div>
+            <span>[${time}]</span>
+            <p><strong>AgentX:</strong> Run ${runId} started</p>
+          </div>
+        `;
+      })
+      .catch(error => {
+        console.error("Error launching run:", error);
+        statusMessage.textContent = "Failed to start run";
+        statusMessage.style.color = "red";
+      });
+    });
+  });
+</script>
+</body>
+</html>
