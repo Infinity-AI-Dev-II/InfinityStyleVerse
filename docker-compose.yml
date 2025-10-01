@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Nakshath7031}
+      POSTGRES_DB: ${POSTGRES_DB:-infinitystyleversedb}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--save", "60", "1"]
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.api
+    volumes:
+      - ./:/app:delegated
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PYTHONPATH=/app
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.worker
+    volumes:
+      - ./:/app:delegated
+    env_file:
+      - .env
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PYTHONPATH=/app
+    depends_on:
+      - redis
+      - postgres
+    command: ["celery", "-A", "backend.celery_app", "worker", "--loglevel=info", "--concurrency=2", "-Q", "default"]
+    restart: unless-stopped
+
+  flower:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.worker
+    volumes:
+      - ./:/app:delegated
+    environment:
+      - PYTHONPATH=/app
+    command: ["celery", "-A", "backend.celery_app", "flower", "--port=5555", "--broker=redis://redis:6379/0"]
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - worker
+
+  locust:
+    image: locustio/locust:2.31.2
+    working_dir: /mnt/locust
+    volumes:
+      - ./backend/tests/load:/mnt/locust
+    ports:
+      - "8089:8089"
+    command: ["locust", "-f", "/mnt/locust/locustfile.py", "--host=http://api:8000"]
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

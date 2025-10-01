@@ -1,14 +1,16 @@
-from backend.app.database import engine
-from sqlalchemy import text
+# reset_db.py
+from backend.app import create_app
+from backend.app.database import db
 
-# Add dag_json column to workflow_defs if it doesn't exist
-with engine.connect() as conn:
-    conn.execute(
-        text(
-            """
-            ALTER TABLE workflow_defs
-            ADD COLUMN dag_json TEXT;
-            """
-        )
-    )
-    print("dag_json column added successfully.")
+app = create_app()
+
+with app.app_context():
+    print("Dropping all tables...")
+    db.drop_all()
+    print("All tables dropped.")
+
+    print("Creating all tables...")
+    db.create_all()
+    print("All tables created.")
+
+    print("Database reset completed successfully!")

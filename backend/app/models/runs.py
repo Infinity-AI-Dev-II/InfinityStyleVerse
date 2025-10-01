@@ -1,3 +1,4 @@
+# backend/app/models/runs.py
 from datetime import datetime
 from ..database import db
 
@@ -11,6 +12,11 @@ class Run(db.Model):
     tenant = db.Column(db.String(100))
     caller = db.Column(db.String(100))
     inputs_json = db.Column(db.Text)
+    
+    # --- new columns ---
+    started_at = db.Column(db.DateTime)  # timestamp when run starts
+    ended_at = db.Column(db.DateTime)    # timestamp when run ends
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

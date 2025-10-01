@@ -1,0 +1,48 @@
+# backend/app/config/experiment_config.py
+
+from typing import Dict, Any
+import yaml
+import os
+
+class ExperimentConfig:
+    """Manages experiment configurations and reward functions."""
+    
+    def __init__(self, config_path: str = None):
+        if config_path is None:
+            config_path = os.path.join(os.path.dirname(__file__), 'reward_functions.yaml')
+        self.config_path = config_path
+        self._load_config()
+    
+    def _load_config(self):
+        """Load configuration from YAML file."""
+        try:
+            with open(self.config_path, 'r') as f:
+                self.config = yaml.safe_load(f)
+        except FileNotFoundError:
+            self.config = self._default_config()
+    
+    def _default_config(self) -> Dict[str, Any]:
+        """Default reward function configurations."""
+        return {
+            'tasks': {
+                'outfit_recommendation': {
+                    'reward_function': {
+                        'click': 0.1,
+                        'add_to_cart': 0.3,
+                        'purchase': 1.0,
+                        'return': -1.5
+                    }
+                },
+                'price_optimization': {
+                    'reward_function': {
+                        'revenue_normalized': 1.0,
+                        'abandon_penalty': -0.2,
+                        'margin_bonus': 0.1
+                    }
+                }
+            }
+        }
+    
+    def get_reward_function(self, task: str) -> Dict[str, float]:
+        """Get reward function for specific task."""
+        return self.config.get('tasks', {}).get(task, {}).get('reward_function', {})

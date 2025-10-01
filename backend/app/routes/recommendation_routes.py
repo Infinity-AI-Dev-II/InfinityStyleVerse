@@ -14,7 +14,9 @@ import pandas as pd
 from ..models import Product, ProductImage
 from ..utils.esg_utils import generate_esg_columns, compute_esg_score
 
-esg_model_path = r'C:\Users\DELL\Desktop\htdocs\InfinityStyleVerse\models\esg_model.pkl'
+esg_model_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', '..', 'models', 'esg_model.pkl')
+)
 esg_model = joblib.load(esg_model_path)
 
 recommendation_bp = Blueprint('recommendation', __name__)

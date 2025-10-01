@@ -1,0 +1,29 @@
+version: "1.0"
+tasks:
+  outfit_recommendation:
+    reward_function:
+      click: 0.1
+      add_to_cart: 0.3
+      purchase: 1.0
+      return: -1.5
+      ar_tryon: 0.2
+    guardrails:
+      max_return_rate_increase: 0.02  # 2% max increase
+      min_click_rate: 0.01  # 1% minimum
+      
+  price_optimization:
+    reward_function:
+      revenue_normalized: 1.0
+      abandon_penalty: -0.2
+      margin_bonus: 0.1
+    guardrails:
+      max_price_increase: 0.1  # 10% max price increase
+      min_conversion_rate: 0.02
+      
+  fabric_selection:
+    reward_function:
+      selection: 0.5
+      purchase: 1.0
+      sustainability_bonus: 0.3
+    guardrails:
+      min_selection_rate: 0.05

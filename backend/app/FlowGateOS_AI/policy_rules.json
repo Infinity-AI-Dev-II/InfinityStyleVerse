@@ -1,0 +1,14 @@
+{
+  "rules": [
+    {"type": "compensate", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "fallback", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "http_call", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "join", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "map", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "model_call", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "python_fn", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "sql_query", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "switch", "retries": 3, "timeout_ms": 500, "backoff": "none"},
+    {"type": "wait", "retries": 3, "timeout_ms": 500, "backoff": "none"}
+  ]
+}

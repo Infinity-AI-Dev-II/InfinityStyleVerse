@@ -1,13 +1,32 @@
-# backend/tests/test_integration.py
-def test_login_then_access_admin_dashboard(client, app_ctx, get_user, login_and_get_tokens):
-    """Login as admin and access admin route"""
-    admin = get_user("admin@example.com")
-    assert admin is not None
+#tests/test_csrf.py
+import pytest
+from flask_jwt_extended import create_access_token, create_refresh_token
+from backend.app.models import User
 
-    # Use fixture properly by passing it as an argument
-    access, refresh, csrf = login_and_get_tokens(client, "admin@example.com", "Admin123!") 
-    headers = {"Authorization": f"Bearer {access}", "X-CSRFToken": csrf}
+@pytest.fixture
+def login_and_get_tokens(seed_roles_and_users):
+    def _login(email, password):
+        user = User.query.filter_by(email=email).first()
+        assert user is not None
+        assert user.verify_password(password)  # Make sure password is correct
 
-    # Hit an existing admin route
+        # ✅ JWT identity must be a string
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
+        return access_token, refresh_token
+    return _login
+
+
+def test_login_then_access_admin_dashboard(client, seed_roles_and_users, login_and_get_tokens):
+    admin, _ = seed_roles_and_users
+    access, _ = login_and_get_tokens(admin.email, "Admin123!")
+
+    headers = {
+        "Authorization": f"Bearer {access}",
+        "Content-Type": "application/json"
+    }
+
+    # GET request without sending empty JSON
     resp = client.get("/admin/users", headers=headers)
+    print(resp.status_code, resp.get_data(as_text=True))  # optional for debugging
     assert resp.status_code == 200

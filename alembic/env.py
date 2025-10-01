@@ -19,7 +19,7 @@ sys.path.insert(0, APP_PATH)
 
 # --- Imports ---
 try:
-    from config import Config  # backend/app/config.py
+    from config.settings import Config  # backend/app/config.py
     from models import Base    # backend/app/models/__init__.py
 except ImportError as e:
     print("Error importing Config or Base:", e)

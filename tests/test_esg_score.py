@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend', 'app')))
-from utils.esg_module import process_product_esg
+from backend.app.utils.esg_module import process_product_esg
 
 # Define 10 test products
 test_products = [

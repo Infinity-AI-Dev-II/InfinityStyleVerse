@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, jsonify, render_template
 from backend.app.decorators import role_required 
 from flask_jwt_extended import jwt_required
 

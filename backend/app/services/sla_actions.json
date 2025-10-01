@@ -1,0 +1,20 @@
+{
+  "risk_bands": [
+    {
+      "min_risk": 0.0,
+      "max_risk": 0.3,
+      "action": "proceed_normally"
+    },
+    {
+      "min_risk": 0.3,
+      "max_risk": 0.7,
+      "action": "increase_timeout_by_200ms"
+    },
+    {
+      "min_risk": 0.7,
+      "max_risk": 1.0,
+      "action": "switch_to_fast_model"
+    }
+  ],
+  "default_action": "skip_noncritical_step"
+}

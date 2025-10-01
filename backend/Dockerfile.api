@@ -1,0 +1,30 @@
+# Dockerfile.api
+FROM python:3.11-slim
+
+# Set workdir
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn
+RUN pip install flower
+# Copy the rest of the app
+COPY . .
+
+# Expose API port
+EXPOSE 8000
+
+# Start the API
+
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "run:app"]
+
+

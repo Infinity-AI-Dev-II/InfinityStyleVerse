@@ -1,10 +1,14 @@
+# backend/app/routes/workflow_routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from ..database import db
-from ..models.workflow_defs import WorkflowDef
+from backend.app.database import db
+from backend.app.models.workflow_defs import WorkflowDef
+from backend.app.models.runs import Run
+from backend.app.models.run_steps import RunStep
 import yaml
 import json
 from typing import List, Dict, Tuple
+from datetime import datetime
 
 bp = Blueprint("workflow_routes", __name__, url_prefix="/flow/workflows")
 
@@ -70,7 +74,7 @@ def build_dag(parsed: dict) -> Tuple[List[Dict], List[Tuple[str, str]]]:
                     raise ValueError(f"step '{sid}' depends_on unknown step '{dep_id}'")
                 edges.append((dep_id, sid))
 
-    # cycle detection (Kahn's)
+    # cycle detection (Kahn's algorithm)
     adjacency = {n["id"]: [] for n in nodes}
     indegree = {n["id"]: 0 for n in nodes}
     for a, b in edges:
@@ -161,3 +165,114 @@ def get_workflow(wf_id):
     wf = WorkflowDef.query.get_or_404(wf_id)
     include_dag = request.args.get("include_dag", "false").lower() in ("1", "true", "yes")
     return jsonify(wf.to_dict(include_dag=include_dag)), 200
+
+
+# POST /flow/workflows/plan
+# ----------------------
+@bp.route("/plan", methods=["POST"])
+@jwt_required()
+def flow_plan():
+    payload = request.get_json() or {}
+    dsl_yaml = payload.get("dsl_yaml")
+    if not dsl_yaml:
+        return jsonify({"error": "dsl_yaml is required"}), 400
+    try:
+        parsed = yaml.safe_load(dsl_yaml)
+        nodes, edges = build_dag(parsed)
+    except Exception as e:
+        return jsonify({"error": f"Invalid DSL: {str(e)}"}), 400
+    return jsonify({"dag": {"nodes": nodes, "edges": edges}}), 200
+
+@bp.route("/<int:run_id>/cancel", methods=["POST"])
+@jwt_required()
+def cancel_run(run_id):
+    run = Run.query.get(run_id)
+    if not run:
+        return jsonify({"error": "run not found"}), 404
+    run.status = "canceled"
+    db.session.commit()
+    # mark pending/running steps as skipped
+    RunStep.query.filter(RunStep.run_id==run_id, RunStep.status.in_(["pending", "running"])).update({"status": "skipped"})
+    db.session.commit()
+    return jsonify({"run_id": run_id, "status": "canceled"}), 200
+
+@bp.route("/<int:run_id>/signal/<string:step_id>", methods=["POST"])
+@jwt_required()
+def signal_run(run_id, step_id):
+    step = RunStep.query.filter_by(run_id=run_id, step_id=step_id).first()
+    if not step:
+        return jsonify({"error": "step not found"}), 404
+    # mark step as signalled
+    step.signalled = True if hasattr(step, "signalled") else True
+    db.session.commit()
+    return jsonify({"run_id": run_id, "step_id": step_id, "signalled": True}), 200
+
+@bp.route("/<int:wf_id>/start", methods=["POST"])
+@jwt_required()
+def start_workflow(wf_id):
+    wf = WorkflowDef.query.get(wf_id)
+    if not wf:
+        return jsonify({"error": "workflow not found"}), 404
+
+    # Create run with explicit version
+    run = Run(
+        workflow_id=wf.id,
+        status="running",
+        version=wf.version,          # <<< pass the workflow version here
+        started_at=datetime.utcnow()
+    )
+    db.session.add(run)
+    db.session.commit()
+
+    # Create run steps from workflow DAG
+    try:
+        parsed = yaml.safe_load(wf.dsl_yaml)
+        steps = parsed.get("steps", [])
+    except Exception:
+        return jsonify({"error": "invalid workflow DSL"}), 400
+
+    for s in steps:
+        rs = RunStep(
+            run_id=run.id,
+            step_id=str(s["id"]),
+            status="pending",
+            output_json=json.dumps({})
+        )
+        db.session.add(rs)
+    db.session.commit()
+
+    return jsonify({
+    "message": "workflow started",
+    "run_id": run.id,
+    "status": run.status  
+     }), 200
+
+
+
+@bp.route("/runs/<int:run_id>", methods=["GET"])
+@jwt_required()
+def get_run(run_id):
+    run = Run.query.get(run_id)
+    if not run:
+        return jsonify({"error": "run not found"}), 404
+
+    steps = RunStep.query.filter_by(run_id=run.id).all()
+    step_list = [
+        {
+            "step_id": s.step_id,
+            "status": s.status,
+            "output": json.loads(s.output_json) if s.output_json else {},  # fix here
+            "started_at": s.started_at.isoformat() if s.started_at else None,
+            "ended_at": s.ended_at.isoformat() if s.ended_at else None
+        }
+        for s in steps
+    ]
+
+    return jsonify({
+        "run_id": run.id,
+        "workflow_id": run.workflow_id,
+        "status": run.status,
+        "started_at": run.started_at.isoformat() if run.started_at else None,
+        "ended_at": run.ended_at.isoformat() if run.ended_at else None,
+        "steps": step_list
+    }), 200

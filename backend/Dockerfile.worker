@@ -1,0 +1,18 @@
+# Use Python 3.11 slim image
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy everything from project root
+COPY . .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN pip install flower
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Default command (can be overridden in docker-compose)
+CMD ["celery", "-A", "backend.celery_app", "worker", "--loglevel=info"]

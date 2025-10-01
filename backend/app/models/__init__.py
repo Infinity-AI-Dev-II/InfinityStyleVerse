@@ -20,11 +20,11 @@ from .run_var import RunVar
 from .signals import Signal
 from .locks import Lock
 from .compensations import Compensation
-
+from .WaitStepTimer import WaitStepTimer  
 
 __all__ = [
     "Base",  # <-- make sure Base is exported
     "User", "Product", "Feedback", "RequestLog", "Design", "ProductImage",
     "Role", "Permission", "TokenBlocklist",
-    "WorkflowDef", "Run", "RunStep", "RunVar", "Signal", "Lock", "Compensation"
+    "WorkflowDef", "Run", "RunStep", "RunVar", "Signal", "Lock", "Compensation","WaitStepTimer"
 ]

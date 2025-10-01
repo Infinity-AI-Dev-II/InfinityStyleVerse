@@ -21,25 +21,46 @@ class UpdateRequest(BaseModel):
     reward: float
     task: str
     context: Optional[List[float]] = None
-
-
+    
 @app.post("/select_arm")
 async def select_arm(req: SelectArmRequest):
     task = req.task
     context = np.array(req.context) if req.context else np.zeros(5)
 
     if task == "outfit_ranking":
-        arm = thompson.select_arm()
-        return {"task": task, "selected_arm": int(arm), "method": "ThompsonSampling"}
+        response = thompson.select_arm()
+        return {
+            "task": task,
+            "selected_arm": response["arm"],
+            "method": "ThompsonSampling",
+            "propensities": response["propensities"],
+            "confidence_bounds": response["confidence_bounds"],
+            "uncertainties": response.get("uncertainties")  # None for ThompsonSampling
+        }
 
     elif task == "price_nudge":
-        arm = linucb.select_arm(context)
-        return {"task": task, "selected_arm": int(arm), "method": "LinUCB", "context_used": req.context}
+        response = linucb.select_arm(context)
+        return {
+            "task": task,
+            "selected_arm": response["arm"],
+            "method": "LinUCB",
+            "context_used": req.context,
+            "propensities": response["propensities"],
+            "confidence_bounds": response["confidence_bounds"],
+            "uncertainties": response["uncertainties"]
+        }
 
     else:
-        arm = logisticucb.select_arm(context)
-        return {"task": task, "selected_arm": int(arm), "method": "LogisticUCB", "context_used": req.context}
-
+        response = logisticucb.select_arm(context)
+        return {
+            "task": task,
+            "selected_arm": response["arm"],
+            "method": "LogisticUCB",
+            "context_used": req.context,
+            "propensities": response["propensities"],
+            "confidence_bounds": response["confidence_bounds"],
+            "uncertainties": response["uncertainties"]
+        }
 
 @app.post("/update")
 async def update(req: UpdateRequest):
@@ -50,10 +71,8 @@ async def update(req: UpdateRequest):
 
     if task == "outfit_ranking":
         thompson.update(chosen_arm, reward)
-
     elif task == "price_nudge":
         linucb.update(chosen_arm, reward, context)
-
     else:
         logisticucb.update(chosen_arm, reward, context)
 

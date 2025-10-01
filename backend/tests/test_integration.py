@@ -1,23 +1,27 @@
-# backend/tests/test_integration.py
-
 import pytest
+from flask_jwt_extended import create_access_token, create_refresh_token
+from backend.app.models import User
 
-def test_login_then_access_admin_dashboard(client, app_ctx, get_user, login_and_get_tokens):
-    """Login as admin and access admin dashboard"""
+@pytest.fixture
+def login_and_get_tokens(seed_roles_and_users):
+    def _login(email, password):
+        user = User.query.filter_by(email=email).first()
+        assert user is not None
+        assert user.verify_password(password)  # Make sure password is correct
+
+        #  JWT identity must be a string
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
+        return access_token, refresh_token
+    return _login
+
+def test_login_then_access_admin_dashboard(client, seed_roles_and_users, login_and_get_tokens):
+    admin, _ = seed_roles_and_users
+    access, _ = login_and_get_tokens(admin.email, "Admin123!")
     
-    # Ensure admin exists
-    admin = get_user("admin@example.com")
-    assert admin is not None
-
-    # Correct fixture usage: inject login_and_get_tokens
-    access, refresh, csrf = login_and_get_tokens(client, "admin@example.com", "Admin123!")
-
-    headers = {"Authorization": f"Bearer {access}"}
-
-    # Make request to an existing admin route
-    resp = client.get("/admin/users", headers=headers)  # change to /admin/users or any existing admin route
+    headers = {
+        "Authorization": f"Bearer {access}",
+        "Content-Type": "application/json"
+    }
+    resp = client.get("/admin/users", headers=headers)
     assert resp.status_code == 200
-
-    # Optional: check response data
-    data = resp.get_json()
-    assert isinstance(data, list)

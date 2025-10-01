@@ -1,100 +1,131 @@
-# backend/tests/conftest.py
 import pytest
-from backend.app import create_app, db
-from backend.app.models.user import User
+from backend.app import create_app
+from backend.app.database import db
 from backend.app.models.roles import Role
+from backend.app.models.user import User
 from werkzeug.security import generate_password_hash
-
-
-@pytest.fixture(scope="session")
+from flask_jwt_extended import create_access_token, create_refresh_token
+from backend.app.database import SessionLocal, Base, engine
+# ---------------------------
+# App fixture
+# ---------------------------
+@pytest.fixture(scope="function")
 def app_ctx():
-    """Create a Flask app with a fresh test database."""
     app = create_app("testing")
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # disable CSRF for tests
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TESTING"] = True
 
     with app.app_context():
+        db.drop_all()
         db.create_all()
-
-        # Seed roles
-        admin_role = Role(role_name="admin")
-        user_role = Role(role_name="user")
-        db.session.add_all([admin_role, user_role])
-        db.session.commit()
-
-        # Seed users with hashed passwords
-        admin = User(
-            email="admin@example.com",
-            password_hash=generate_password_hash("Admin123!"),
-            role=admin_role
-        )
-
-        user = User(
-            email="alice@example.com",
-            password_hash=generate_password_hash("User123!"),
-            role=user_role
-        )
-
-        db.session.add_all([admin, user])
-        db.session.commit()
-
-        yield app   
-
+        yield app
         db.session.remove()
         db.drop_all()
 
+# ---------------------------
+# Clean DB before each test
+# ---------------------------
+@pytest.fixture(autouse=True)
+def clean_db(app_ctx):
+    db.session.rollback()
+    for tbl in reversed(db.metadata.sorted_tables):
+        db.session.execute(tbl.delete())
+    db.session.commit()
 
-@pytest.fixture
+# ---------------------------
+# Test client fixture
+# ---------------------------
+@pytest.fixture(scope="function")
 def client(app_ctx):
-    """Flask test client."""
     return app_ctx.test_client()
 
+# ---------------------------
+# Seed roles and users fixture
+# ---------------------------
+@pytest.fixture(scope="function")
+def seed_roles_and_users(app_ctx):
+    """Seed roles and test users into DB"""
+    # Clear DB
+    User.query.delete()
+    Role.query.delete()
+    db.session.commit()
 
-@pytest.fixture
-def get_user():
-    """Helper to fetch a fresh user object by email."""
-    def _get_user(email):
+    # Create roles
+    admin_role = Role(role_name="admin")
+    user_role = Role(role_name="user")
+    db.session.add_all([admin_role, user_role])
+    db.session.commit()
+
+    # Create users
+    admin = User(
+        name="Admin",
+        email="admin@example.com",
+        password_hash=generate_password_hash("Admin123!"),
+        role_id=admin_role.id,
+        status="Active"
+    )
+    alice = User(
+        name="Alice",
+        email="alice@example.com",
+        password_hash=generate_password_hash("User123!"),
+        role_id=user_role.id,
+        status="Active"
+    )
+    db.session.add_all([admin, alice])
+    db.session.commit()
+
+    return admin, alice  # return users for convenience
+
+# ---------------------------
+# get_user fixture
+# ---------------------------
+@pytest.fixture(scope="function")
+def get_user(app_ctx):
+    """Return a function to fetch a user by email"""
+    def _get_user(email: str) -> User:
         return User.query.filter_by(email=email).first()
     return _get_user
 
-
-@pytest.fixture
-def login_and_get_tokens():
+# ---------------------------
+# login_and_get_tokens fixture
+# ---------------------------
+@pytest.fixture(scope="function")
+def login_and_get_tokens(app_ctx, get_user):
     """
-    Helper to log in a user and return JWT tokens.
-    Returns (access_token, refresh_token, csrf_token)
+    Logs in a user by email and password.
+    Returns (access_token, refresh_token)
     """
-    def _login(client, email, password):
-        response = client.post(
-            "/auth/login",
-            json={"email": email, "password": password},
-        )
-        assert response.status_code == 200
-
-        data = response.get_json()
-        access = data.get("access_token")
-        refresh = data.get("refresh_token")
-
-        # Extract CSRF token from cookies if present
-        csrf_token = None
-        if "csrf_access_token" in response.headers.get("Set-Cookie", ""):
-            csrf_token = response.headers.get("Set-Cookie").split("csrf_access_token=")[1].split(";")[0]
-
-        return access, refresh, csrf_token
+    def _login(email="alice@example.com", password="User123!"):
+        user = get_user(email)
+        if not user:
+            raise RuntimeError(f"User {email} not found.")
+        access_token = create_access_token(identity=user.id)
+        refresh_token = create_refresh_token(identity=user.id)
+        return access_token, refresh_token
     return _login
 
+@pytest.fixture(scope="function")
+def db_session():
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.rollback()
+        session.close()
+        Base.metadata.drop_all(bind=engine)
 
-def get_csrf_from_client(client):
-    """
-    Fetch a CSRF token from the test client.
-    Adjust this if your API exposes CSRF via cookies or endpoint.
-    """
-    resp = client.get("/auth/csrf")
-    assert resp.status_code == 200
-    cookie = resp.headers.get("Set-Cookie")
-    csrf_token = cookie.split("csrf_token=")[1].split(";")[0]
-    return csrf_token
+from backend.celery_app import celery_app
+
+@pytest.fixture(scope="function")
+def celery_worker():
+    # Use solo pool to run tasks in the same process
+    from celery.contrib.testing.worker import start_worker
+    with start_worker(celery_app, pool="solo", perform_ping_check=False) as worker:
+        yield worker
 
 @pytest.fixture
 def app():
-    app = create_app(test_config=True)
-    with app.app_context():
-        yield app
+    return create_app()
