@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:wght@100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 200px;
+            --dark-bg: #161616;
+            --header-height: 70px;
+            --dark-bg: #222222;
+            --light-bg: #f8f8f8;
+            --accent-color: #c19a6b;
+            --text-dark: #333333;
+            --text-light: #ffffff;
+            --text-gray: #666666;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --edit-btn-color: #e0f2f7;
+            --edit-text-color: #0d7088;
+            --delete-btn-color: #fce4ec;
+            --delete-text-color: #b71c24;
+            --assign-btn-color: #ffffff;
+            --assign-text-color: #155724;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 0.875rem;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            padding: 18px;
+            position: fixed;
+            height: 100vh;
+
+            z-index: 10;
+        }
+
+        .sidebar a.active {
+            background-color: #c19a6b;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .sidebar a.active i {
+            color: #ffffff;
+        }
+
+        .bg-custom-dark {
+            background-color: var(--dark-bg);
+        }
+
+        .text-custom-light {
+            color: var(--text-light);
+        }
+
+        .bg-custom-accent {
+            background-color: var(--accent-color);
+        }
+
+        .text-custom-accent {
+            color: var(--accent-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            font-size: 0.75rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 0.85rem;
+            top: 1.5rem;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .rotate-90 {
+            transform: rotate(90deg);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 1.5rem;
+            margin-left: var(--sidebar-width);
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+        }
+
+        h3 {
+            font-size: 1rem;
+        }
+
+        .text-xl {
+            font-size: 1rem;
+        }
+
+
+        .uplift-container {
+            position: relative;
+        }
+
+        .uplift-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 20px;
+
+        }
+
+        .uplift-message {
+            margin-top: 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        :root {
+            --accent: #c79252;
+            --accent-dark: #b27e49;
+            --sidebar: #111018;
+            --main-bg: #ffffff;
+            --text-color: #333333;
+            --trace-bg: linear-gradient(180deg, rgba(246, 242, 250, 1) 0%, rgba(252, 248, 251, 1) 100%);
+            --trace-border: 6px solid rgba(238, 226, 245, 0.6);
+            --card-bg: #ffffff;
+            --card-border: 1px solid rgba(221, 214, 210, 0.25);
+            --pill-bg: rgba(194, 146, 97, 0.12);
+            --pill-color: var(--accent-dark);
+        }
+
+        [data-theme="dark"] {
+            --main-bg: #1a1a2e;
+            --text-color: #e0e0e0;
+            --sidebar: #0f0e20;
+            --trace-bg: linear-gradient(180deg, rgba(26, 26, 46, 1) 0%, rgba(30, 30, 50, 1) 100%);
+            --trace-border: 6px solid rgba(40, 40, 60, 0.6);
+            --card-bg: #2a2a44;
+            --card-border: 1px solid rgba(60, 60, 80, 0.25);
+            --pill-bg: rgba(200, 150, 80, 0.2);
+            --pill-color: var(--accent);
+        }
+
+        [data-theme="light"] body {
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] body {
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--main-bg);
+            color: var(--text-color);
+        }
+
+        .trace-wrap {
+            background: var(--trace-bg);
+            border: var(--trace-border);
+            transition: all 0.3s;
+        }
+
+        .agent-card {
+            background: var(--card-bg);
+            border: var(--card-border);
+            transition: all 0.3s;
+        }
+
+        .pill {
+            background: var(--pill-bg);
+            color: var(--pill-color);
+            transition: all 0.3s;
+        }
+
+        .sidebar a.active {
+            background: linear-gradient(90deg, #c19a6b 0%, #b47f4a 100%);
+        }
+
+        .brand {
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            font-size: 1.05rem;
+            color: white;
+        }
+
+        .main-content-meta.expanded {
+            margin-left: 288px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .collapsible-tree {
+            cursor: pointer;
+        }
+
+        .collapsible-tree:before {
+            content: '▶';
+            display: inline-block;
+            margin-right: 6px;
+            transition: transform 0.2s;
+        }
+
+        .collapsible-tree.open:before {
+            transform: rotate(90deg);
+        }
+
+        .nested {
+            display: none;
+            margin-left: 1.5rem;
+            border-left: 1px dashed #ccc;
+            padding-left: 0.5rem;
+        }
+
+        .active-final-pick {
+            box-shadow: 0 0 0 4px var(--accent-dark);
+        }
+
+        .thin-scroll::-webkit-scrollbar {
+            height: 10px;
+            width: 8px
+        }
+
+        .thin-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 8px
+        }
+
+        @media (max-width:900px) {
+            .trace-wrap {
+                padding: 12px
+            }
+
+            .main-content-meta {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+
+        :root {
+
+            --hit-text: #10b981;
+            --hit-bg: #ecfdf5;
+            --status-failure-text: #ef4444;
+            --status-failure-bg: #fef2f2;
+            --status-success-bg: #dcfce7;
+            --bg-card: var(--card-bg);
+            --bg-main: var(--main-bg);
+            --text-dark: var(--text-color);
+            --text-secondary: var(--text-gray);
+            --text-muted: var(--border-color);
+            --accent-primary: var(--accent-color);
+        }
+
+        [data-theme="dark"] {
+            --hit-text: #6ee7b7;
+            --hit-bg: #115e59;
+            --status-failure-text: #fca5a5;
+            --status-failure-bg: #7f1d1d;
+            --status-success-bg: #065f46;
+        }
+
+        .request-card:hover {
+            background-color: #EDE9E5 !important;
+            transition: background-color 0.3s ease;
+        }
+
+        .request-card {
+            border: 1px solid transparent;
+            background-color: #F6F3FF !important;
+        }
+
+        .request-card.active-request {
+            border-color: var(--accent-primary);
+            background-color: var(--status-success-bg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        #trace-explorer-section .mt-8 {
+            background-color: #F5F5F5 !important;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+
+
+        .thin-scroll::-webkit-scrollbar {
+            height: 10px;
+            width: 8px
+        }
+
+        .thin-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 8px
+        }
+
+        @media (max-width:900px) {
+            .trace-wrap {
+                padding: 12px
+            }
+
+            .main-content-meta {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        #timeline-container>div:nth-child(1) span,
+        #timeline-container>div:nth-child(1) .font-bold {
+            color: #6FDA47;
+        }
+
+        #timeline-container>div:nth-child(2) span,
+        #timeline-container>div:nth-child(2) .font-bold {
+            color: #6FDA47;
+        }
+
+        #timeline-container>div:nth-child(3) span,
+        #timeline-container>div:nth-child(3) .font-bold {
+            color: #6FDA47;
+        }
+
+        #timeline-container>div:nth-child(4) span,
+        #timeline-container>div:nth-child(4) .font-bold {
+            color: #6FDA47;
+        }
+
+        #cache-inspector {
+            background-color: #F5F5F5 !important;
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        #cache-inspector:hover {
+            background-color: #eeeeee !important;
+        }
+
+
+        #trace-explorer-section h2.text-lg.font-semibold.text-text-dark.mb-4 {
+            margin-top: -12px;
+
+        }
+
+        #request-list-container {
+            margin-top: -8px;
+
+        }
+
+
+        #timeline-container>div:nth-child(1) p.font-semibold {
+            color: #717378 !important;
+        }
+
+
+        #trace-details-summary p.text-text-secondary.text-xs {
+            color: #838487 !important;
+            font-weight: 500;
+        }
+
+
+        #trace-explorer-section .mt-8 {
+            background-color: #F5F5F5 !important;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+
+        #timeline-container p.font-semibold {
+            color: #717378 !important;
+            font-weight: 600;
+        }
+
+        #timeline-container p.text-sm {
+            color: #AAABAE !important;
+            font-weight: 500;
+        }
+
+
+        #trace-details-summary p.font-medium.text-accent-primary {
+            color: #329D0B !important;
+            font-weight: 700;
+        }
+
+        #trace-details-summary>div:nth-child(4) p.font-medium {
+            color: #FBBC05 !important;
+            font-weight: 700;
+        }
+
+
+
+        #trace-details-summary p.font-medium {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+
+        .text-success {
+            color: #329D0B !important;
+            font-weight: 700;
+        }
+
+        .text-failure {
+            color: #B71C24 !important;
+            font-weight: 700;
+        }
+
+
+        .text-latency {
+            color: #838487 !important;
+            font-weight: 600;
+        }
+
+
+        .text-timestamp {
+            color: #C19A6B !important;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen" data-theme="light">
+    <div
+        class="sidebar w-64 h-screen bg-custom-dark text-custom-light p-6 flex flex-col justify-between shadow-2xl overflow-hidden">
+        <div>
+
+            <div class="text-[20px] font-bold mb-8 font-['Inter'] text-[#c19a6b] text-center">StyleVerse</div>
+
+
+            <nav class="space-y-3 text-sm font-['DM Sans']">
+                <a href="#" id="dashboard-link"
+                    class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fas fa-th-large text-lg w-5"></i>
+                    <span>Dashboard</span>
+                    <i id="dashboard-arrow"
+                        class="fa-solid fa-angle-right w-3 h-3 ml-auto transform transition-transform duration-200"></i>
+                </a>
+                <div id="dashboard-submenu" class="ml-6 space-y-3 hidden text-xs">
+                    <a href="user.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-users text-lg w-5"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="roles.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-user-shield text-lg w-5"></i>
+                        <span>Roles</span>
+                    </a>
+                    <a href="permission.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-unlock text-lg w-5"></i>
+                        <span>Permissions</span>
+                    </a>
+                </div>
+                <a href="#" id="experiments-link"
+                    class="flex items-center space-x-4 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10 active bg-white bg-opacity-20 font-bold">
+                    <i class="fa-solid fa-flask text-lg w-5"></i>
+                    <span>Experiments</span>
+                </a>
+
+
+                <a href="#" id="policy-link"
+                    class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-scroll text-lg w-5"></i>
+                    <span>Policy & Attribution</span>
+                </a>
+
+                <a href="#" id="arbitration-link"
+                    class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-gavel text-lg w-5"></i>
+                    <span>Arbitration Visualizer</span>
+                </a>
+                <a href="#" id="trace-explorer-link"
+                    class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-chart-line text-lg w-5"></i>
+                    <span>Trace Explorer & Cache Inspector </span>
+                </a>
+            </nav>
+        </div>
+        <div class="mt-8 text-xs font-['DM Sans']">
+            <a href="#"
+                class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 bg-gray-500 bg-opacity-30 hover:bg-opacity-50">
+                <i class="fa-solid fa-right-from-bracket text-lg w-5"></i>
+                <span>Logout</span>
+            </a>
+            <div class="flex items-center mt-4 p-2 space-x-4">
+                <img class="w-8 h-8 rounded-full border-2 border-white" src="Image.png" alt="User Profile Picture">
+                <span class="text-xs font-medium">Jenifer winget</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content flex-grow p-6 ml-64">
+        <div id="experiments-section" class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Experiments Console</h1>
+            </header>
+
+            <section id="create-experiment" class="mb-6 p-5 border rounded-lg shadow-sm bg-gray-50">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Create New Experiment</h2>
+                <form id="experiment-form" class="grid grid-cols-1 md:grid-cols-2 gap-5 font-['Nunito Sans']">
+                    <div>
+                        <label for="exp-name" class="block text-xs font-medium text-gray-700">Experiment Name</label>
+                        <input type="text" id="exp-name"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                    </div>
+                    <div>
+                        <label for="task" class="block text-xs font-medium text-gray-700">Task</label>
+                        <select id="task"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                            <option>outfit recommendation</option>
+                            <option>price nudge</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="split" class="block text-xs font-medium text-gray-700">Population Split</label>
+                        <input type="text" id="split" value="50/50"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                    </div>
+                    <div>
+                        <label for="metric" class="block text-xs font-medium text-gray-700">Primary Metric</label>
+                        <select id="metric"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                            <option>CTR</option>
+                            <option>CVR</option>
+                            <option>AOV</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button type="submit"
+                            class="w-full py-2 px-3 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-custom-accent hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-accent transition">
+                            Launch Experiment
+                        </button>
+                    </div>
+                </form>
+                <div id="status-message" class="mt-3 text-center text-xs font-medium hidden"></div>
+            </section>
+
+            <section id="active-experiments" class="mb-6">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Active Experiments</h2>
+                <div id="experiments-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                </div>
+            </section>
+
+            <section id="uplift-chart-container" class="p-5 border rounded-lg shadow-sm bg-gray-50 uplift-container">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Uplift Visualization</h2>
+                <div id="uplift-content" class="uplift-content">
+                    <canvas id="upliftChart" class="w-full h-80"></canvas>
+                    <div id="uplift-message" class="uplift-message"></div>
+                </div>
+                <div id="no-data-message" class="text-center text-gray-500 mt-3 text-sm hidden">Select an experiment to
+                    see data.</div>
+            </section>
+        </div>
+
+        <div id="policy-section" class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 hidden">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Policy & Attribution Explorer</h1>
+            </header>
+
+            <section id="policy-dashboard" class="mb-6 p-5 border rounded-lg shadow-sm bg-gray-50">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Policy Dashboard</h2>
+                <div id="policies-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-custom-accent">
+                        <h3 class="text-base font-bold text-custom-accent mb-2 font-['Nunito Sans']">Outfit
+                            Recommendation</h3>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Active Policy:</strong> pol_rec_v5</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Version:</strong> 5</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Rollout %:</strong> 100%</p>
+                        <p class="text-xs text-gray-600"><strong>Exploration Rate:</strong> 5%</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-custom-accent">
+                        <h3 class="text-base font-bold text-custom-accent mb-2 font-['Nunito Sans']">Price Nudge</h3>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Active Policy:</strong> pol_price_v3</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Version:</strong> 3</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Rollout %:</strong> 75%</p>
+                        <p class="text-xs text-gray-600"><strong>Exploration Rate:</strong> 10%</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="attribution-viewer" class="p-5 border rounded-lg shadow-sm bg-gray-50">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Attribution Viewer</h2>
+                <div class="flex flex-col md:flex-row gap-3 mb-4">
+                    <input type="text" id="request-id-input"
+                        class="flex-grow rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs"
+                        placeholder="Enter request_id (e.g., req_123)">
+                    <button id="search-btn"
+                        class="py-2 px-3 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-custom-accent hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-accent transition">
+                        Search Trace
+                    </button>
+                </div>
+                <div id="attribution-results" class="space-y-5">
+                </div>
+            </section>
+        </div>
+
+
+
+        <div id="arbitration-visualizer-section" class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 hidden">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Arbitration Visualizer Console</h1>
+            </header>
+
+            <div id="mainContentMeta" class="flex-1 main-content-meta">
+                <main class="p-8">
+                    <header class="mb-6 flex items-start justify-between">
+                        <div>
+                            <h1 class="text-3xl font-extrabold" style="color:var(--accent)">Agent Run Console</h1>
+                            <p class="text-sm text-gray-500">Live Run <span id="connectionBadge"
+                                    class="pill">disconnected</span></p>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <button id="themeToggle"
+                                class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                aria-label="Toggle dark/light theme">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                                </svg>
+                            </button>
+                            <button id="loginBtn"
+                                class="px-4 py-2 rounded text-white shadow-md hover:opacity-80 transition-opacity"
+                                style="background:var(--accent)" aria-label="Login">Login</button>
+                            <button id="clearBtn" class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                aria-label="Clear all messages">Clear</button>
+                        </div>
+                    </header>
+
+                    <div class="flex items-center gap-4 mb-6">
+                        <button class="pill">All agents</button>
+                        <label class="inline-flex items-center gap-2 text-gray-700"><input id="ruleFailOnly"
+                                type="checkbox" class="rounded" /> Rule-fail only</label>
+
+                        <div class="flex-1 relative">
+                            <input id="searchBox" type="search" placeholder="Search here"
+                                class="w-full px-4 py-3 rounded-full border shadow-sm" aria-label="Search messages" />
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <section class="md:col-span-2">
+                            <div class="trace-wrap">
+                                <div id="messages" class="space-y-4 thin-scroll max-h-[420px] overflow-auto" role="log"
+                                    aria-live="polite">
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <h3 class="font-semibold">Arbitration Results</h3>
+                                <div class="mt-3 flex items-center gap-3">
+                                    <div id="resultsText" class="text-sm text-gray-500">Waiting for results...</div>
+                                    <button id="copyTrace"
+                                        class="px-3 py-1 rounded border text-sm hover:bg-gray-100 transition-colors"
+                                        aria-label="Copy trace URI">Copy trace URI</button>
+                                    <button id="openTrace"
+                                        class="px-3 py-1 rounded border text-sm hover:bg-gray-100 transition-colors"
+                                        aria-label="Open trace in new tab">Open Trace</button>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <h3 class="font-semibold">Policy & Budget</h3>
+                                <div class="mt-3 bg-white p-4 rounded shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-sm">Mode</div>
+                                        <div class="flex gap-2 ml-4">
+                                            <button class="px-3 py-1 rounded border mode-btn active"
+                                                data-mode="standard">Standard</button>
+                                            <button id="dryRunBtn" class="px-3 py-1 rounded border mode-btn"
+                                                data-mode="dry" aria-label="Perform a dry run preview">Dry Run
+                                                Preview</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-sm text-gray-600">
+                                        <div>Latency Budget: <strong id="latencyBudget">2500 ms</strong></div>
+                                        <div class="mt-1">Cost Budget: <strong id="costBudget">10 cents</strong></div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <h4 class="font-semibold">Blackboard Inspector</h4>
+                                        <div id="blackboardInspector" class="text-sm text-gray-500 mt-2">No blackboard
+                                            entries yet.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </section>
+
+                        <aside>
+                            <div class="bg-white p-4 rounded shadow-sm border">
+                                <h4 class="font-semibold">Final Pick</h4>
+                                <div id="finalPickContainer" class="mt-3 text-sm text-gray-700">No final pick yet</div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded shadow-sm border mt-4">
+                                <h4 class="font-semibold">Controls</h4>
+                                <div class="mt-3 flex flex-col gap-2">
+                                    <button id="cancelRun"
+                                        class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                        aria-label="Cancel current run">Cancel Run</button>
+                                    <button id="openRaw"
+                                        class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                        aria-label="Open raw trace data">Open Run (raw)</button>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <div id="messageContainer" class="fixed bottom-4 right-4 z-50"></div>
+                </main>
+            </div>
+        </div>
+
+        <div id="trace-explorer-section" class="max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 hidden">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Trace Explorer & Cache Inspector
+                </h1>
+            </header>
+
+            <div class="p-4">
+                <main class="p-8 lg:p-12">
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                        <div class="lg:col-span-1">
+                            <h2 class="text-lg font-semibold text-text-dark mb-4" style="color:var(--accent)">Recent
+                                Requests</h2>
+
+                            <div id="request-list-container" class="space-y-4">
+                            </div>
+
+                        </div>
+
+                        <div class="lg:col-span-2 space-y-3">
+
+                            <div class="bg-bg-card p-6 rounded-xl shadow-lg">
+                                <h2 class="text-lg font-semibold text-text-dark mb-4" style="color:var(--accent)">Model
+                                    Trace Details</h2>
+                                <div id="trace-details-summary" class="grid grid-cols-2 md:grid-cols-4 gap-y-3 text-sm">
+                                </div>
+
+                                <div class="mt-8">
+                                    <h3 class="text-md font-semibold text-text-dark mb-4" style="color:var(--accent)">
+                                        Execution Timeline</h3>
+                                    <div id="timeline-container" class="space-y-4 border-l border-text-muted pl-4">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="planner-dag-panel" class="bg-bg-card p-6 rounded-xl shadow-lg">
+                                <h3 class="text-md font-semibold text-text-dark mb-4" style="color:var(--accent)">
+                                    Planner DAG Viewer</h3>
+                                <div id="planner-dag-viewer" class="h-28 rounded-lg p-4 transition-all duration-300">
+                                </div>
+                            </div>
+
+                            <div class="bg-bg-card p-6 rounded-xl shadow-lg">
+                                <h3 class="text-md font-semibold text-text-dark mb-4" style="color:var(--accent)">Cache
+                                    Inspector</h3>
+                                <div id="cache-inspector" class="space-y-3">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const experimentForm = document.getElementById('experiment-form');
+            const experimentsList = document.getElementById('experiments-list');
+            const statusMessage = document.getElementById('status-message');
+            const noDataMessage = document.getElementById('no-data-message');
+            const upliftChartContainer = document.getElementById('uplift-chart-container');
+            const upliftContent = document.getElementById('uplift-content');
+            const upliftMessage = document.getElementById('uplift-message');
+            const ctx = document.getElementById('upliftChart').getContext('2d');
+            let myChart = null;
+
+            const experimentsSection = document.getElementById('experiments-section');
+            const policySection = document.getElementById('policy-section');
+            const experimentsLink = document.getElementById('experiments-link');
+            const policyLink = document.getElementById('policy-link');
+            const arbitrationLink = document.getElementById('arbitration-link'); // New
+            const arbitrationVisualizerSection = document.getElementById('arbitration-visualizer-section'); // New
+
+            const searchBtn = document.getElementById('search-btn');
+            const requestIdInput = document.getElementById('request-id-input');
+            const attributionResults = document.getElementById('attribution-results');
+
+            const dashboardLink = document.getElementById('dashboard-link');
+            const dashboardSubmenu = document.getElementById('dashboard-submenu');
+            const dashboardArrow = document.getElementById('dashboard-arrow');
+
+            if (dashboardLink && dashboardSubmenu) {
+                dashboardLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    dashboardSubmenu.classList.toggle('hidden');
+                    dashboardArrow.classList.toggle('rotate-90');
+                });
+            }
+            const experiments = [{
+                id: 'exp_1',
+                name: 'Outfit Rec V2',
+                task: 'outfit recommendation',
+                status: 'active',
+                split: '50/50',
+                kpis: {
+                    control: {
+                        ctr: 0.05,
+                        cvr: 0.02
+                    },
+                    variant_A: {
+                        ctr: 0.065,
+                        cvr: 0.025
+                    }
+                }
+            }, {
+                id: 'exp_2',
+                name: 'Price Nudge Test',
+                task: 'price nudge',
+                status: 'paused',
+                split: '80/20',
+                kpis: {
+                    control: {
+                        aov: 50.00
+                    },
+                    variant_A: {
+                        aov: 55.50
+                    }
+                }
+            }];
+
+            const sampleTraces = {
+                'req_123': {
+                    decision: {
+                        id: 'req_123',
+                        policy: 'pol_rec_v5',
+                        task: 'outfit recommendation',
+                        timestamp: '2023-10-27T10:00:00Z',
+                        chosen_item: 'skul',
+                        score: 0.81
+                    },
+                    events: [{
+                        type: 'impression',
+                        value: 1,
+                        timestamp: '2023-10-27T10:00:01Z'
+                    }, {
+                        type: 'click',
+                        value: 1,
+                        timestamp: '2023-10-27T10:00:15Z'
+                    }, {
+                        type: 'purchase',
+                        value: 1,
+                        timestamp: '2023-10-27T10:02:30Z'
+                    }],
+                    reward: {
+                        value: 1.0,
+                        components: {
+                            click: 0.1,
+                            purchase: 1.0
+                        },
+                        timestamp: '2023-10-27T10:03:00Z'
+                    }
+                }
+            };
+
+
+            const allSections = [experimentsSection, policySection, arbitrationVisualizerSection];
+            const showSection = (sectionId) => {
+                allSections.forEach(section => section.classList.add('hidden'));
+
+                if (sectionId === 'experiments') {
+                    experimentsSection.classList.remove('hidden');
+                } else if (sectionId === 'policy') {
+                    policySection.classList.remove('hidden');
+                } else if (sectionId === 'arbitration') {
+                    arbitrationVisualizerSection.classList.remove('hidden');
+                }
+
+
+                document.querySelectorAll('.sidebar a').forEach(link => {
+
+                    link.classList.remove('active');
+                    link.classList.remove('bg-white', 'bg-opacity-20', 'font-bold');
+                });
+
+
+                const activeLink = document.getElementById(`${sectionId}-link`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                    activeLink.classList.add('bg-white', 'bg-opacity-20', 'font-bold');
+                }
+            };
+
+
+            experimentsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('experiments');
+                renderExperiments();
+            });
+
+            policyLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('policy');
+            });
+
+            arbitrationLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection('arbitration');
+            });
+
+
+            const setActiveLink = (activeId) => {
+                document.querySelectorAll('.sidebar a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.getElementById(activeId).classList.add('active');
+            };
+
+            const renderExperiments = () => {
+                experimentsList.innerHTML = '';
+                experiments.forEach(exp => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-5 rounded-lg shadow-md border-t-4 border-custom-accent';
+                    card.innerHTML = `
+                        <h3 class="text-base font-bold text-custom-accent mb-2 font-['Nunito Sans']">${exp.name}</h3>
+                        <p class="text-xs text-gray-600 mb-1 font-['Nunito Sans']"><strong>ID:</strong> ${exp.id}</p>
+                        <p class="text-xs text-gray-600 mb-1 font-['Nunito Sans']"><strong>Task:</strong> ${exp.task}</p>
+                        <p class="text-xs text-gray-600 mb-1 font-['Nunito Sans']"><strong>Status:</strong> <span class="font-semibold capitalize">${exp.status}</span></p>
+                        <div class="mt-3 flex space-x-2">
+                            <button class="view-btn py-1 px-2 bg-custom-accent text-white text-xs rounded-md shadow-sm transition hover:bg-opacity-90" data-id="${exp.id}">View Details</button>
+                            <button class="status-btn py-1 px-2 bg-slate-500 text-white text-xs rounded-md shadow-sm transition hover:bg-opacity-90" data-id="${exp.id}" data-status="${exp.status}">${exp.status === 'active' ? 'Stop' : 'Start'}</button>
+                        </div>
+                    `;
+                    experimentsList.appendChild(card);
+                });
+            };
+
+            const renderChart = (experiment) => {
+                let kpi, controlValue, variantValue;
+                if (experiment.task === 'outfit recommendation') {
+                    kpi = 'ctr';
+                    controlValue = experiment.kpis.control.ctr;
+                    variantValue = experiment.kpis.variant_A.ctr;
+                } else if (experiment.task === 'price nudge') {
+                    kpi = 'aov';
+                    controlValue = experiment.kpis.control.aov;
+                    variantValue = experiment.kpis.variant_A.aov;
+                }
+
+                const uplift = ((variantValue - controlValue) / controlValue) * 100;
+                let messageText = '';
+                let messageColor = '';
+
+                if (uplift > 0) {
+                    messageText = `✅ Significant Uplift! The variant improved ${kpi.toUpperCase()} by ${uplift.toFixed(2)}% compared to control.`;
+                    messageColor = 'text-green-600';
+                } else if (uplift < 0) {
+                    messageText = `❌ Negative Uplift. The variant decreased ${kpi.toUpperCase()} by ${Math.abs(uplift).toFixed(2)}%. Consider stopping the experiment.`;
+                    messageColor = 'text-red-600';
+                } else {
+                    messageText = `⚠️ No significant change. The variant had a ${uplift.toFixed(2)}% uplift. More data may be needed.`;
+                    messageColor = 'text-yellow-600';
+                }
+
+                if (myChart) {
+                    myChart.destroy();
+                }
+
+                Chart.register(ChartDataLabels);
+
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Control', `Variant A`],
+                        datasets: [{
+                            label: `KPI: ${kpi.toUpperCase()}`,
+                            data: [controlValue, variantValue],
+                            backgroundColor: ['#222222', '#c19a6b'],
+                            borderColor: ['#222222', '#c19a6b'],
+                            borderWidth: 1,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: `Uplift for ${experiment.name}`,
+                                font: {
+                                    family: 'Nunito Sans',
+                                    size: 14
+                                }
+                            },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'top',
+                                formatter: function (value, context) {
+                                    return value.toFixed(2);
+                                },
+                                font: {
+                                    weight: 'bold',
+                                    size: 12
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                upliftMessage.textContent = messageText;
+                upliftMessage.className = `uplift-message ${messageColor}`;
+                noDataMessage.classList.add('hidden');
+                upliftContent.classList.remove('hidden');
+            };
+
+            dashboardLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                dashboardSubmenu.classList.toggle('hidden');
+                dashboardArrow.classList.toggle('rotate-90');
+            });
+
+            experimentForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newExp = {
+                    id: `exp_${experiments.length + 1}`,
+                    name: document.getElementById('exp-name').value || 'New Experiment',
+                    task: document.getElementById('task').value,
+                    status: 'active',
+                    split: document.getElementById('split').value,
+                    kpis: {
+                        control: {
+                            ctr: Math.random() * 0.1,
+                            cvr: Math.random() * 0.05,
+                            aov: Math.random() * 100 + 50
+                        },
+                        variant_A: {
+                            ctr: Math.random() * 0.1,
+                            cvr: Math.random() * 0.05,
+                            aov: Math.random() * 100 + 50
+                        }
+                    }
+                };
+                experiments.push(newExp);
+                renderExperiments();
+                statusMessage.textContent = 'Experiment launched successfully!';
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.add('text-green-600');
+                experimentForm.reset();
+            });
+
+            experimentsList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('view-btn')) {
+                    const id = e.target.dataset.id;
+                    const experiment = experiments.find(exp => exp.id === id);
+                    if (experiment) {
+                        renderChart(experiment);
+                    }
+                } else if (e.target.classList.contains('status-btn')) {
+                    const id = e.target.dataset.id;
+                    const experiment = experiments.find(exp => exp.id === id);
+                    if (experiment) {
+                        if (experiment.status === 'active') {
+                            experiment.status = 'paused';
+                            e.target.textContent = 'Start';
+                            e.target.classList.remove('bg-custom-accent');
+                            e.target.classList.add('bg-green-600');
+                        } else {
+                            experiment.status = 'active';
+                            e.target.textContent = 'Stop';
+                            e.target.classList.remove('bg-green-600');
+                            e.target.classList.add('bg-custom-accent');
+                        }
+                        renderExperiments();
+                    }
+                }
+            });
+
+            searchBtn.addEventListener('click', () => {
+                const requestId = requestIdInput.value.trim();
+                const trace = sampleTraces[requestId];
+
+                attributionResults.innerHTML = '';
+                if (trace) {
+                    const traceContainer = document.createElement('div');
+                    traceContainer.className = 'bg-white p-5 rounded-lg shadow-md';
+                    traceContainer.innerHTML = `
+                        <h3 class="text-base font-bold text-custom-accent mb-3 font-['Nunito Sans']">Trace for Request ID: ${trace.decision.id}</h3>
+                        <div class="space-y-4">
+                            <div class="timeline-item">
+                                <p class="text-xs font-semibold">Decision Logged</p>
+                                <p class="text-xs text-gray-500">${new Date(trace.decision.timestamp).toLocaleString()}</p>
+                                <ul class="text-xs list-disc list-inside mt-2 text-gray-700">
+                                    <li>Policy: ${trace.decision.policy}</li>
+                                    <li>Task: ${trace.decision.task}</li>
+                                    <li>Chosen Item: ${trace.decision.chosen_item}</li>
+                                    <li>Score: ${trace.decision.score}</li>
+                                </ul>
+                            </div>
+                            <div class="timeline-item">
+                                <p class="text-xs font-semibold">Events</p>
+                                <ul class="text-xs list-disc list-inside mt-2 text-gray-700">
+                                    ${trace.events.map(event => `
+                                        <li>${event.type} event (Value: ${event.value}) at ${new Date(event.timestamp).toLocaleTimeString()}</li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                            <div class="timeline-item">
+                                <p class="text-xs font-semibold">Reward Computed</p>
+                                <p class="text-xs text-gray-500">${new Date(trace.reward.timestamp).toLocaleString()}</p>
+                                <ul class="text-xs list-disc list-inside mt-2 text-gray-700">
+                                    <li>Total Reward: ${trace.reward.value}</li>
+                                    <li>Components: ${JSON.stringify(trace.reward.components)}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    attributionResults.appendChild(traceContainer);
+                } else {
+                    attributionResults.innerHTML = `<p class="text-center text-gray-500 text-sm">No trace found for that request ID.</p>`;
+                }
+            });
+
+            renderExperiments();
+            upliftContent.classList.add('hidden');
+            noDataMessage.classList.remove('hidden');
+
+
+
+            const messagesEl = document.getElementById('messages');
+            const resultsText = document.getElementById('resultsText');
+            const finalPickContainer = document.getElementById('finalPickContainer');
+            const messageContainer = document.getElementById('messageContainer');
+            const clearBtn = document.getElementById('clearBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const connectionBadge = document.getElementById('connectionBadge');
+            const dryRunBtn = document.getElementById('dryRunBtn');
+            const blackboardInspector = document.getElementById('blackboardInspector');
+            const searchBox = document.getElementById('searchBox');
+            const themeToggle = document.getElementById('themeToggle');
+
+            function showMessage(text, type = 'info') {
+                const messageEl = document.createElement('div');
+                messageEl.textContent = text;
+                messageEl.className = 'p-3 my-2 rounded-lg text-sm transition-all duration-300 transform';
+                if (type === 'success') {
+                    messageEl.classList.add('bg-green-100', 'text-green-800');
+                } else if (type === 'error') {
+                    messageEl.classList.add('bg-red-100', 'text-red-800');
+                } else {
+                    messageEl.classList.add('bg-blue-100', 'text-blue-800');
+                }
+                messageContainer.appendChild(messageEl);
+
+                setTimeout(() => {
+                    messageEl.classList.add('translate-y-full', 'opacity-0');
+                    messageEl.addEventListener('transitionend', () => messageEl.remove());
+                }, 3000);
+            }
+
+            function createMessageCard(m) {
+                const wrap = document.createElement('div');
+                wrap.className = 'p-4 rounded-lg';
+                wrap.setAttribute('data-agent', m.agent.toLowerCase().replace(/\s/g, ''));
+                wrap.style.background = m.variant === 'highlight' ? 'linear-gradient(90deg,#fff6f0,#fffaf9)' : '#ffffff';
+                wrap.style.border = '1px solid rgba(230,220,220,0.7)';
+                wrap.classList.add('agent-card');
+
+                wrap.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                             <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span> ${m.agent}
+                            <span class="ml-2 text-xs pill flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 10.5h-11a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1Z"></path><path d="M12 2v2M4 7v-2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"></path></svg>
+                                 ${m.turn}
+                            </span>
+                             <span class="ml-2 text-xs pill flex items-center gap-1">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                 ${m.time}
+                             </span>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-sm text-gray-600">${m.content}</div>
+                `;
+                return wrap;
+            }
+
+
+            let messageBatch = [];
+            let batchTimer = null;
+            const BATCH_INTERVAL = 50;
+
+            function addMessageToBatch(message) {
+                messageBatch.push(message);
+                if (!batchTimer) {
+                    batchTimer = setTimeout(processBatch, BATCH_INTERVAL);
+                }
+            }
+
+            function processBatch() {
+                if (messageBatch.length > 0) {
+                    const fragment = document.createDocumentFragment();
+
+                    messageBatch.forEach(msg => {
+                        fragment.prepend(createMessageCard(msg));
+                    });
+                    messagesEl.prepend(fragment);
+                    messageBatch = [];
+                    batchTimer = null;
+                    updateFinalPickHighlight();
+                }
+            }
+
+            function renderBlackboardTree(data, parentEl) {
+                if (typeof data !== 'object' || data === null) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${JSON.stringify(data)}</span>`;
+                    parentEl.appendChild(li);
+                    return;
+                }
+
+                for (const key in data) {
+                    const value = data[key];
+                    const li = document.createElement('li');
+                    li.className = 'mt-1';
+                    if (typeof value === 'object' && value !== null) {
+                        const toggleSpan = document.createElement('span');
+                        toggleSpan.className = 'collapsible-tree';
+                        toggleSpan.textContent = `${key}:`;
+                        li.appendChild(toggleSpan);
+
+                        const nestedUl = document.createElement('ul');
+                        nestedUl.className = 'nested';
+                        li.appendChild(nestedUl);
+
+                        toggleSpan.addEventListener('click', () => {
+                            toggleSpan.classList.toggle('open');
+                            nestedUl.style.display = nestedUl.style.display === 'block' ? 'none' : 'block';
+                        });
+                        renderBlackboardTree(value, nestedUl);
+                    } else if (typeof value === 'string' && value.startsWith('https://')) {
+                        li.innerHTML = `<span class="font-semibold">${key}:</span> <a href="${value}" target="_blank" class="text-blue-600 hover:underline">View Artifact</a>`;
+                    } else {
+                        li.innerHTML = `<span class="font-semibold">${key}:</span> ${JSON.stringify(value)}`;
+                    }
+                    parentEl.appendChild(li);
+                }
+            }
+
+            function updateBlackboard(blackboard) {
+                if (!blackboard || Object.keys(blackboard).length === 0) {
+                    blackboardInspector.innerHTML = `No blackboard entries yet.`;
+                    return;
+                }
+
+                blackboardInspector.innerHTML = `<ul class="list-disc list-inside space-y-1"></ul>`;
+                const list = blackboardInspector.querySelector('ul');
+                renderBlackboardTree(blackboard, list);
+            }
+
+            function updateFinalPickHighlight() {
+                const finalPickText = finalPickContainer.textContent;
+                messagesEl.querySelectorAll('.agent-card').forEach(card => {
+                    card.classList.remove('active-final-pick');
+                    if (finalPickText !== 'No final pick yet' && card.querySelector('.font-semibold').textContent.includes(finalPickText)) {
+
+                        finalPickContainer.innerHTML = '';
+
+                        const clonedCard = card.cloneNode(true);
+                        clonedCard.classList.add('active-final-pick');
+
+                        clonedCard.style.background = 'none';
+
+                        finalPickContainer.appendChild(clonedCard);
+                    }
+                });
+            }
+
+
+
+            let sseInterval = null;
+            let turnCounter = 0;
+            let isConnected = false;
+
+            function connectToSSE() {
+                connectionBadge.textContent = 'connecting...';
+                connectionBadge.style.background = 'rgba(255,165,0,0.12)';
+                connectionBadge.style.color = 'orange';
+
+
+                setTimeout(() => {
+                    isConnected = true;
+                    connectionBadge.textContent = 'connected';
+                    connectionBadge.style.background = 'rgba(34,197,94,0.12)';
+                    connectionBadge.style.color = '#16a34a';
+                    showMessage('Connection established. Simulating live trace...', 'success');
+
+
+                    sseInterval = setInterval(() => {
+                        turnCounter++;
+                        const mockMessage = {
+                            agent: `Agent ${turnCounter % 3 + 1}`,
+                            turn: turnCounter,
+                            time: new Date().toLocaleTimeString(),
+                            content: `This is a mock message for turn ${turnCounter}.`,
+                            variant: turnCounter % 2 === 0 ? 'plain' : 'highlight',
+                        };
+                        addMessageToBatch(mockMessage);
+
+
+                        if (turnCounter === 5) {
+                            updateBlackboard({
+                                'image_url': 'https://placehold.co/150x150',
+                                'summary': 'Initial data analysis complete.',
+                                'report_link': 'https://example.local/report_001.pdf',
+                                'nested_data': {
+                                    'metrics': {
+                                        'latency': '50ms',
+                                        'cost': '0.01c'
+                                    }
+                                }
+                            });
+                            finalPickContainer.textContent = 'Agent 2';
+                        } else if (turnCounter === 10) {
+                            updateBlackboard({
+                                'final_decision': 'Accepted',
+                                'confidence_score': 0.95
+                            });
+                            finalPickContainer.textContent = 'Agent 1';
+                        }
+
+                    }, 1000);
+                }, 1000);
+            }
+
+            connectToSSE();
+
+
+
+            document.getElementById('copyTrace').addEventListener('click', () => {
+                navigator.clipboard?.writeText('https://example.local/meta/runs/run_abc/trace').then(() => {
+                    showMessage('Trace URI copied to clipboard', 'success');
+                }).catch(() => showMessage('Could not copy trace URI', 'error'));
+            });
+
+            document.getElementById('openTrace').addEventListener('click', () => {
+                window.open('https://example.local/meta/runs/run_abc/trace', '_blank');
+            });
+
+            document.getElementById('cancelRun').addEventListener('click', () => {
+
+                if (sseInterval) {
+                    clearInterval(sseInterval);
+                    sseInterval = null;
+                    isConnected = false;
+                    connectionBadge.textContent = 'disconnected';
+                    connectionBadge.style.background = 'rgba(243,244,246,0.9)';
+                    connectionBadge.style.color = '#6b7280';
+                }
+                finalPickContainer.textContent = 'Cancel requested — awaiting stop';
+                resultsText.textContent = 'Run cancel requested';
+                showMessage('Run cancellation requested.', 'info');
+                setTimeout(() => finalPickContainer.textContent = 'No final pick yet', 3000);
+            });
+
+            document.getElementById('openRaw').addEventListener('click', () => {
+                window.open('/meta/runs/run_abc', '_blank');
+            });
+
+            loginBtn.addEventListener('click', () => {
+                showMessage('Simulating login...', 'info');
+            });
+
+            clearBtn.addEventListener('click', () => {
+                messagesEl.innerHTML = '';
+                updateBlackboard(null);
+                finalPickContainer.textContent = 'No final pick yet';
+                showMessage('Message timeline cleared.', 'success');
+            });
+
+
+            dryRunBtn.addEventListener('click', async () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                dryRunBtn.classList.add('active');
+
+                resultsText.textContent = 'Previewing...';
+                dryRunBtn.textContent = 'Previewing...';
+                dryRunBtn.disabled = true;
+
+                const traceData = {
+                    candidates: [{}, {}, {}],
+                    messages: [
+                        { agent: 'System', turn: 1, time: new Date().toLocaleTimeString(), content: 'Dry Run: Analyzing user request.', variant: 'plain' },
+                        { agent: 'Planner', turn: 2, time: new Date().toLocaleTimeString(), content: 'Creating plan to involve agents A and B.', variant: 'highlight' },
+                        { agent: 'Agent A', turn: 3, time: new Date().toLocaleTimeString(), content: 'Executing sub-task and adding result to blackboard.', variant: 'plain', blackboard: { 'subtask_result_A': 'Data from agent A' } },
+                        { agent: 'Agent B', turn: 4, time: new Date().toLocaleTimeString(), content: 'Analyzing Agent A\'s output.', variant: 'plain' },
+                        { agent: 'Arbitrator', turn: 5, time: new Date().toLocaleTimeString(), content: 'Finalizing decision based on candidate scores.', variant: 'highlight' },
+                    ],
+                    final_pick: 'Agent B',
+                    blackboard: {
+                        'initial_prompt': 'Suggest a new slogan',
+                        'plan_id': 'plan_xyz',
+                        'subtask_result_A': 'Data from agent A',
+                        'candidate_scores': { 'A': 0.8, 'B': 0.95 }
+                    }
+                };
+
+                try {
+
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    resultsText.textContent = `Dry-run preview returned ${traceData.candidates.length} candidates`;
+
+
+                    messagesEl.innerHTML = '';
+                    traceData.messages.forEach(msg => addMessageToBatch(msg));
+                    finalPickContainer.textContent = traceData.final_pick || 'No final pick in preview';
+                    updateBlackboard(traceData.blackboard);
+
+                    showMessage('Dry run preview complete.', 'success');
+
+                } catch (error) {
+                    console.error('Dry run preview failed:', error);
+                    showMessage(`Dry run failed: ${error.message}`, 'error');
+                    resultsText.textContent = 'Dry-run preview failed';
+                    finalPickContainer.textContent = 'No final pick yet';
+                } finally {
+                    dryRunBtn.textContent = 'Dry Run Preview';
+                    dryRunBtn.disabled = false;
+                }
+            });
+
+
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    if (btn.dataset.mode === 'standard') {
+                        resultsText.textContent = 'Waiting for results...';
+                    }
+                });
+            });
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+
+
+            function applyFilter(query) {
+                const q = query.toLowerCase();
+                Array.from(messagesEl.children).forEach(card => {
+                    const txt = card.innerText.toLowerCase();
+                    card.style.display = q && !txt.includes(q) ? 'none' : '';
+                });
+            }
+            searchBox.addEventListener('input', (e) => {
+                const query = e.target.value;
+                applyFilter(query);
+
+                const url = new URL(window.location);
+                if (query) {
+                    url.searchParams.set('q', query);
+                } else {
+                    url.searchParams.delete('q');
+                }
+                history.pushState({}, '', url);
+            });
+
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const savedQuery = urlParams.get('q');
+            if (savedQuery) {
+                searchBox.value = savedQuery;
+                applyFilter(savedQuery);
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = {
+                'dashboard-link': 'experiments-section',
+                'experiments-link': 'experiments-section',
+                'policy-link': 'policy-section',
+                'arbitration-link': 'arbitration-visualizer-section',
+                'trace-explorer-link': 'trace-explorer-section'
+            };
+
+            const allLinks = document.querySelectorAll('.sidebar a[id$="-link"]');
+            const allSections = document.querySelectorAll('.main-content > div[id$="-section"]');
+
+            function showSection(linkId) {
+                const targetId = sections[linkId];
+                if (!targetId) return;
+
+
+                allSections.forEach(section => section.classList.add('hidden'));
+                allLinks.forEach(link => link.classList.remove('active', 'bg-white', 'bg-opacity-20', 'font-bold'));
+
+
+                const targetSection = document.getElementById(targetId);
+                const activeLink = document.getElementById(linkId);
+
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+                if (activeLink) {
+                    activeLink.classList.add('active', 'bg-white', 'bg-opacity-20', 'font-bold');
+                }
+
+
+                if (linkId === 'trace-explorer-link' && typeof initApp === 'function') {
+                    initApp();
+                }
+            }
+
+
+            const initialActiveLink = document.querySelector('.sidebar a.active');
+            if (initialActiveLink && sections[initialActiveLink.id]) {
+                showSection(initialActiveLink.id);
+            } else {
+
+                showSection('experiments-link');
+            }
+
+
+            allLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSection(link.id);
+                });
+            });
+
+
+            const dashboardLink = document.getElementById('dashboard-link');
+            const dashboardSubmenu = document.getElementById('dashboard-submenu');
+            const dashboardArrow = document.getElementById('dashboard-arrow');
+
+            if (dashboardLink) {
+                dashboardLink.addEventListener('click', (e) => {
+
+                    if (e.target.id === 'dashboard-link' || e.target.closest('#dashboard-link')) {
+                        e.preventDefault();
+                        dashboardSubmenu.classList.toggle('hidden');
+                        dashboardArrow.classList.toggle('rotate-90');
+                        showSection('experiments-link');
+                    }
+                });
+            }
+        });
+    </script>
+    
+    <script>
+
+        const TRACE_API_URL = "./traces.json"
+        const CACHE_API_URL = "https://api.example.com/v1/cache";
+
+
+        let traces = [];
+        let cacheMetrics = [];
+
+        function renderRequestList(traceArray) {
+            const container = document.getElementById('request-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!traceArray || traceArray.length === 0) {
+                container.innerHTML = `<div class="p-4 bg-white rounded shadow-sm text-sm text-gray-500">No recent requests.</div>`;
+                return;
+            }
+
+
+            traceArray.forEach(trace => {
+
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = createRequestCard(trace);
+                const cardEl = wrapper.firstElementChild;
+                if (!cardEl) return;
+
+
+                cardEl.addEventListener('click', () => {
+
+                    renderTraceDetails(trace);
+
+                    document.querySelectorAll('#request-list-container .request-card').forEach(c => c.classList.remove('active-request'));
+                    cardEl.classList.add('active-request');
+
+                    cardEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                });
+
+                container.appendChild(cardEl);
+            });
+        }
+
+
+        async function loadTracesFromAPI() {
+            try {
+
+                const container = document.getElementById('request-list-container');
+                if (container) container.innerHTML = `<div class="p-4 text-sm text-gray-500">Loading traces...</div>`;
+
+                const res = await fetch(TRACE_API_URL, { method: 'GET', credentials: 'same-origin' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+
+
+                traces = (Array.isArray(data) ? data : data.traces || []).map(item => ({
+                    id: item.id || item.request_id || 'unknown_id',
+                    status: (item.status || item.state || 'FAILURE').toString().toUpperCase(),
+                    endpoint: item.endpoint || item.path || item.url || '/unknown',
+                    timestamp: item.timestamp || item.time || item.created_at || 'N/A',
+                    totalLatency: item.latency || item.totalLatency || item.total_latency || '0 ms',
+                    executionSteps: item.executionSteps || item.steps || item.execution_steps || [],
+                    cacheStatus: item.cacheStatus || (item.cache && item.cache.status) || 'MISS',
+                    cacheKey: item.cacheKey || (item.cache && item.cache.key) || '',
+
+                    raw: item
+                }));
+
+
+                renderRequestList(traces);
+
+
+                if (traces.length > 0) {
+                    renderTraceDetails(traces[0]);
+
+                    const firstCard = document.querySelector('#request-list-container .request-card');
+                    if (firstCard) firstCard.classList.add('active-request');
+                }
+
+            } catch (err) {
+                console.error('Trace fetch failed:', err);
+                const container = document.getElementById('request-list-container');
+                if (container) container.innerHTML = `<div class="p-4 text-sm text-red-500">Failed to load traces.</div>`;
+            }
+        }
+
+
+        async function loadCacheFromAPI() {
+            try {
+                const res = await fetch(CACHE_API_URL, { method: 'GET', credentials: 'same-origin' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                cacheMetrics = data;
+
+                if (typeof renderCacheInspector === 'function') {
+                    renderCacheInspector(cacheMetrics);
+                } else {
+
+                    const cacheContainer = document.getElementById('cache-inspector');
+                    if (cacheContainer) cacheContainer.innerHTML = `<pre class="text-xs">${JSON.stringify(cacheMetrics, null, 2)}</pre>`;
+                }
+            } catch (err) {
+                console.error('Cache fetch failed:', err);
+                const cacheContainer = document.getElementById('cache-inspector');
+                if (cacheContainer) cacheContainer.innerHTML = `<div class="p-2 text-sm text-red-500">Cache data unavailable.</div>`;
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            loadTracesFromAPI();
+
+        });
+
+
+        function createRequestCard(trace) {
+            const isSuccess = trace.status === 'SUCCESS';
+
+            let statusBg, statusText;
+            if (isSuccess) {
+                statusBg = 'bg-green-100';
+                statusText = 'text-success';
+            } else {
+                statusBg = 'bg-red-100';
+                statusText = 'text-failure';
+            }
+
+
+            const borderColor = 'border-accent-primary';
+
+            return `
+                <div 
+                    class="request-card bg-bg-card p-4 rounded-xl shadow-md border-l-4 ${borderColor} cursor-pointer hover:shadow-lg transition duration-200"
+                    data-trace-id="${trace.id}"
+                >
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="font-mono text-text-dark font-semibold">${trace.id}</div>
+                        <span class="px-2 py-0.5 text-xs font-medium rounded-full ${statusBg} ${statusText}">
+                            ${trace.status.toUpperCase()}
+                        </span>
+                    </div>
+                  <p class="text-xs text-timestamp mt-1">${trace.endpoint} @ ${trace.timestamp}</p>
+<p class="text-sm text-text-dark mt-2">Total Latency: 
+   <span class="font-medium text-latency">${trace.totalLatency}</span></p>
+
+                </div>
+            `;
+        }
+
+        function renderTraceDetails(trace) {
+            const summaryContainer = document.getElementById('trace-details-summary');
+            const timelineContainer = document.getElementById('timeline-container');
+            const plannerDagViewer = document.getElementById('planner-dag-viewer');
+            const cacheInspector = document.getElementById('cache-inspector');
+
+            summaryContainer.innerHTML = `
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Request ID</p>
+                    <p class="text-text-dark font-medium">${trace.id}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Endpoint</p>
+                    <p class="text-text-dark font-medium">${trace.endpoint}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Total Latency</p>
+                    <p class="text-text-dark font-medium">${trace.totalLatency}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Cache</p>
+                    <p class="font-medium ${trace.cacheStatus === 'MISS' ? 'text-accent-primary' : 'text-hit-text'}">${trace.cacheStatus}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Status</p>
+                    <p class="font-medium ${trace.status === 'SUCCESS' ? 'text-accent-primary' : 'text-status-failure-text'}">${trace.status}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Timestamp</p>
+                    <p class="text-text-dark font-medium">${trace.timestamp}</p>
+                </div>
+                <div class="col-span-2">
+                    <p class="text-text-secondary text-xs">Target Latency (P95)</p>
+                    <p class="text-text-dark font-medium">${trace.isMultiModel ? '< 2.5 s (Multi-Model)' : '< 800 ms (Single-Model)'}</p>
+                </div>
+            `;
+
+
+            if (trace.executionSteps.length === 0) {
+                timelineContainer.innerHTML = `<p class="text-text-secondary text-sm pt-2">Execution trace is empty (served from cache).</p>`;
+            } else {
+                timelineContainer.innerHTML = trace.executionSteps.map(step => {
+                    const statusClass = step.error ? 'bg-status-failure-text' : 'bg-text-secondary';
+                    const latencyColor = step.error ? 'text-status-failure-text' : 'text-accent-primary';
+                    const detailText = step.error
+                        ? `<p class="text-sm text-status-failure-text">ERROR: Circuit Breaker triggered or execution failed.</p>`
+                        : `<p class="text-sm text-text-secondary">Latency: <span class="font-bold ${latencyColor}">${step.latency}</span> | Starts at: ${step.startsAt}</p>`;
+
+                    return `
+                        <div class="relative">
+                            <div class="absolute -left-5 top-1 w-3 h-3 ${statusClass} rounded-full border-2 border-bg-card"></div>
+                            <p class="font-semibold text-text-dark">${step.name}</p>
+                            ${detailText}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+
+
+            let dagContent = '';
+            let dagPanelClasses = 'border-2 transition-all duration-300 ';
+
+            if (trace.cacheStatus === 'HIT') {
+                dagPanelClasses += 'border-hit-text/50';
+                dagContent = `
+                    <div class="flex flex-col items-center justify-center h-full bg-hit-bg rounded-lg p-4">
+                        <svg class="w-8 h-8 text-hit-text mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.103a12.042 12.042 0 00-7.796-4.685C9.72 2.376 7.552 2 5.5 2 3.448 2 1.28 2.376.178 3.212m10.82 17.576C7.94 18.89 4.3 15.54 2.12 12.086 1.28 10.748.178 9.58 0 8.5"></path></svg>
+                        <p class="text-hit-text font-medium">Execution Skipped.</p>
+                        <p class="text-sm text-hit-text text-center">Planner DAG was not executed due to a **Cache Hit**.</p>
+                    </div>
+                `;
+            } else {
+                dagPanelClasses += 'border-text-muted/30';
+                dagContent = `
+                    <div class="flex items-center justify-around h-full bg-bg-main rounded-lg p-4">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-accent-primary/80 rounded-full flex items-center justify-center text-white text-xs font-semibold">Intent</div>
+                        </div>
+                        <div class="text-text-secondary text-xl font-bold">→</div>
+                        <div class="flex flex-col space-y-2">
+                            <div class="w-16 h-16 bg-accent-primary/50 rounded-full flex items-center justify-center text-text-dark text-xs font-semibold">Style</div>
+                            <div class="w-16 h-16 bg-accent-primary/50 rounded-full flex items-center justify-center text-text-dark text-xs font-semibold">Eco</div>
+                            <div class="w-16 h-16 bg-accent-primary/50 rounded-full flex items-center justify-center text-text-dark text-xs font-semibold">Trend</div>
+                        </div>
+                        <div class="text-text-secondary text-xl font-bold">→</div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-accent-primary rounded-full flex items-center justify-center text-white text-xs font-semibold">Agg</div>
+                        </div>
+                    </div>
+                `;
+            }
+            plannerDagViewer.className = `h-28 rounded-lg p-4 transition-all duration-300 ${dagPanelClasses}`;
+            plannerDagViewer.innerHTML = dagContent;
+
+
+
+            cacheInspector.innerHTML = `
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Cache Status</p>
+                    <p class="font-bold text-xl ${trace.cacheStatus === 'HIT' ? 'text-hit-text' : 'text-accent-primary'}">${trace.cacheStatus} ${trace.cacheStatus === 'HIT' ? '' : '(New Entry Written)'}</p>
+                </div>
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Key</p>
+                    <p class="font-mono text-text-dark break-all">${trace.cacheKey}</p>
+                </div>
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Remaining TTL</p>
+                    <p class="text-text-dark font-medium">${trace.cacheTtl}</p>
+                </div>
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Entry Size</p>
+                    <p class="text-text-dark font-medium">${trace.cacheSize}</p>
+                </div>
+                <p class="text-xs text-text-secondary mt-4 pt-3 border-t border-text-muted/30">
+                    This result was ${trace.cacheStatus === 'HIT' ? 'retrieved directly from' : 'a new entry for'} the Redis Fingerprint Cache (24h TTL per spec).
+                </p>
+            `;
+        }
+
+
+        function initApp() {
+            const listContainer = document.getElementById('request-list-container');
+            let initialTraceId = null;
+
+
+            listContainer.innerHTML = mockTraces.map((trace, index) => {
+                if (index === 0) {
+                    initialTraceId = trace.id;
+                }
+                return createRequestCard(trace);
+            }).join('');
+
+
+            const cards = document.querySelectorAll('#trace-explorer-section .request-card');
+            cards.forEach(card => {
+                card.addEventListener('click', (event) => {
+
+                    cards.forEach(c => c.classList.remove('active-request'));
+
+
+                    const clickedCard = event.currentTarget;
+                    clickedCard.classList.add('active-request');
+
+
+                    const traceId = clickedCard.getAttribute('data-trace-id');
+                    const selectedTrace = mockTraces.find(t => t.id === traceId);
+                    if (selectedTrace) {
+                        renderTraceDetails(selectedTrace);
+                    }
+                });
+            });
+
+
+            if (initialTraceId && mockTraces.length > 0) {
+                const firstCard = document.querySelector(`#trace-explorer-section .request-card[data-trace-id="${initialTraceId}"]`);
+                if (firstCard) {
+                    firstCard.classList.add('active-request');
+                    renderTraceDetails(mockTraces[0]);
+                }
+            }
+
+            console.log('Trace Explorer initialized with dynamic mock data.');
+        }
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+
+                        primary: "#C19A6B",
+                        "background-light": "#f7f7f6",
+                        "background-dark": "#1d1915",
+                        "sidebar-light": "#FFFFFF",
+                        "sidebar-dark": "#161616",
+                        "text-light": "#0F172A",
+                        "text-dark": "#E2E8F0",
+                        "subtext-light": "#64748B",
+
+                        "subtext-dark": "#F5F8FE",
+                        "border-light": "#E2E8F0",
+                        "border-dark": "#334155",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1E293B",
+                        "success-light": "#22C55E",
+                        "success-dark": "#22C55E",
+                        "success-bg-light": "#F0FDF4",
+                        "success-bg-dark": "#162A19",
+                        "failure-light": "#EF4444",
+                        "failure-dark": "#EF4444",
+                        "failure-bg-light": "#FEF2F2",
+                        "failure-bg-dark": "#2B1717",
+                        "warning-light": "#F59E0B",
+                        "warning-dark": "#F59E0B",
+                        "info-light": "#3B82F6",
+                        "info-dark": "#3B82F6"
+                    },
+                    fontFamily: {
+                        display: "Inter"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:wght@100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width: 200px;
+            --dark-bg: #161616;
+            --header-height: 70px;
+            --dark-bg: #222222;
+            --light-bg: #f8f8f8;
+            --accent-color: #c19a6b;
+            --text-dark: #333333;
+            --text-light: #ffffff;
+            --text-gray: #666666;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --edit-btn-color: #e0f2f7;
+            --edit-text-color: #0d7088;
+            --delete-btn-color: #fce4ec;
+            --delete-text-color: #b71c24;
+            --assign-btn-color: #ffffff;
+            --assign-text-color: #155724;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+
+
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 0.875rem;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            padding: 18px;
+            position: fixed;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .sidebar a.active {
+            background-color: #c19a6b;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .sidebar a.active i {
+            color: #ffffff;
+        }
+
+        .bg-custom-dark {
+            background-color: var(--dark-bg);
+        }
+
+        .text-custom-light {
+            color: var(--text-light);
+        }
+
+        .bg-custom-accent {
+            background-color: var(--accent-color);
+        }
+
+        .text-custom-accent {
+            color: var(--accent-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            font-size: 0.75rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0.5rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 0.85rem;
+            top: 1.5rem;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .rotate-90 {
+            transform: rotate(90deg);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 1.5rem;
+            margin-left: var(--sidebar-width);
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+        }
+
+        h3 {
+            font-size: 1rem;
+        }
+
+        .text-xl {
+            font-size: 1rem;
+        }
+
+
+        .uplift-container {
+            position: relative;
+        }
+
+        .uplift-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 20px;
+
+        }
+
+        .uplift-message {
+            margin-top: 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        :root {
+            --accent: #c79252;
+            --accent-dark: #b27e49;
+            --sidebar: #111018;
+            --main-bg: #ffffff;
+            --text-color: #333333;
+            --trace-bg: linear-gradient(180deg, rgba(246, 242, 250, 1) 0%, rgba(252, 248, 251, 1) 100%);
+            --trace-border: 6px solid rgba(238, 226, 245, 0.6);
+            --card-bg: #ffffff;
+            --card-border: 1px solid rgba(221, 214, 210, 0.25);
+            --pill-bg: rgba(194, 146, 97, 0.12);
+            --pill-color: var(--accent-dark);
+        }
+
+        [data-theme="dark"] {
+            --main-bg: #1a1a2e;
+            --text-color: #e0e0e0;
+            --sidebar: #0f0e20;
+            --trace-bg: linear-gradient(180deg, rgba(26, 26, 46, 1) 0%, rgba(30, 30, 50, 1) 100%);
+            --trace-border: 6px solid rgba(40, 40, 60, 0.6);
+            --card-bg: #2a2a44;
+            --card-border: 1px solid rgba(60, 60, 80, 0.25);
+            --pill-bg: rgba(200, 150, 80, 0.2);
+            --pill-color: var(--accent);
+        }
+
+        [data-theme="light"] body {
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+        }
+
+        [data-theme="dark"] body {
+            transition: background-color 0.3s, color 0.3s;
+            background-color: var(--main-bg);
+            color: var(--text-color);
+        }
+
+        .trace-wrap {
+            background: var(--trace-bg);
+            border: var(--trace-border);
+            transition: all 0.3s;
+        }
+
+        .agent-card {
+            background: var(--card-bg);
+            border: var(--card-border);
+            transition: all 0.3s;
+        }
+
+        .pill {
+            background: var(--pill-bg);
+            color: var(--pill-color);
+            transition: all 0.3s;
+        }
+
+        .sidebar a.active {
+            background: linear-gradient(90deg, #c19a6b 0%, #b47f4a 100%);
+        }
+
+        .brand {
+            font-weight: 800;
+            letter-spacing: 0.4px;
+            font-size: 1.05rem;
+            color: white;
+        }
+
+        .main-content-meta.expanded {
+            margin-left: 288px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .collapsible-tree {
+            cursor: pointer;
+        }
+
+        .collapsible-tree:before {
+            content: '▶';
+            display: inline-block;
+            margin-right: 6px;
+            transition: transform 0.2s;
+        }
+
+        .collapsible-tree.open:before {
+            transform: rotate(90deg);
+        }
+
+        .nested {
+            display: none;
+            margin-left: 1.5rem;
+            border-left: 1px dashed #ccc;
+            padding-left: 0.5rem;
+        }
+
+        .active-final-pick {
+            box-shadow: 0 0 0 4px var(--accent-dark);
+        }
+
+        .thin-scroll::-webkit-scrollbar {
+            height: 10px;
+            width: 8px
+        }
+
+        .thin-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 8px
+        }
+
+        @media (max-width:900px) {
+            .trace-wrap {
+                padding: 12px
+            }
+
+            .main-content-meta {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+
+        :root {
+
+            --hit-text: #10b981;
+            --hit-bg: #ecfdf5;
+            --status-failure-text: #ef4444;
+            --status-failure-bg: #fef2f2;
+            --status-success-bg: #dcfce7;
+            --bg-card: var(--card-bg);
+            --bg-main: var(--main-bg);
+            --text-dark: var(--text-color);
+            --text-secondary: var(--text-gray);
+            --text-muted: var(--border-color);
+            --accent-primary: var(--accent-color);
+        }
+
+        [data-theme="dark"] {
+            --hit-text: #6ee7b7;
+            --hit-bg: #115e59;
+            --status-failure-text: #fca5a5;
+            --status-failure-bg: #7f1d1d;
+            --status-success-bg: #065f46;
+        }
+
+        .request-card:hover {
+            background-color: #EDE9E5 !important;
+            transition: background-color 0.3s ease;
+        }
+
+        .request-card {
+            border: 1px solid transparent;
+            background-color: #F6F3FF !important;
+        }
+
+        .request-card.active-request {
+            border-color: var(--accent-primary);
+            background-color: var(--status-success-bg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        #trace-explorer-section .mt-8 {
+            background-color: #F5F5F5 !important;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+
+
+        .thin-scroll::-webkit-scrollbar {
+            height: 10px;
+            width: 8px
+        }
+
+        .thin-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 8px
+        }
+
+        @media (max-width:900px) {
+            .trace-wrap {
+                padding: 12px
+            }
+
+            .main-content-meta {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        #timeline-container>div:nth-child(1) span,
+        #timeline-container>div:nth-child(1) .font-bold {
+            color: #6FDA47;
+        }
+
+        #timeline-container>div:nth-child(2) span,
+        #timeline-container>div:nth-child(2) .font-bold {
+            color: #6FDA47;
+        }
+
+        #timeline-container>div:nth-child(3) span,
+        #timeline-container>div:nth-child(3) .font-bold {
+            color: #6FDA47;
+        }
+
+        #timeline-container>div:nth-child(4) span,
+        #timeline-container>div:nth-child(4) .font-bold {
+            color: #6FDA47;
+        }
+
+        #cache-inspector {
+            background-color: #F5F5F5 !important;
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        #cache-inspector:hover {
+            background-color: #eeeeee !important;
+        }
+
+
+        #trace-explorer-section h2.text-lg.font-semibold.text-text-dark.mb-4 {
+            margin-top: -12px;
+
+        }
+
+        #request-list-container {
+            margin-top: -8px;
+
+        }
+
+
+        #timeline-container>div:nth-child(1) p.font-semibold {
+            color: #717378 !important;
+        }
+
+
+        #trace-details-summary p.text-text-secondary.text-xs {
+            color: #838487 !important;
+            font-weight: 500;
+        }
+
+
+        #trace-explorer-section .mt-8 {
+            background-color: #F5F5F5 !important;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+
+        #timeline-container p.font-semibold {
+            color: #717378 !important;
+            font-weight: 600;
+        }
+
+        #timeline-container p.text-sm {
+            color: #AAABAE !important;
+            font-weight: 500;
+        }
+
+
+        #trace-details-summary p.font-medium.text-accent-primary {
+            color: #329D0B !important;
+            font-weight: 700;
+        }
+
+        #trace-details-summary>div:nth-child(4) p.font-medium {
+            color: #FBBC05 !important;
+            font-weight: 700;
+        }
+
+
+
+        #trace-details-summary p.font-medium {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+
+        .text-success {
+            color: #329D0B !important;
+            font-weight: 700;
+        }
+
+        .text-failure {
+            color: #B71C24 !important;
+            font-weight: 700;
+        }
+
+
+        .text-latency {
+            color: #838487 !important;
+            font-weight: 600;
+        }
+
+
+        .text-timestamp {
+            color: #C19A6B !important;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen" data-theme="light">
+    <div
+        class="sidebar w-64 h-screen bg-custom-dark text-custom-light p-6 flex flex-col justify-between shadow-2xl overflow-hidden">
+        <div>
+
+            <div class="text-[20px] font-bold mb-8 font-['Inter'] text-[#c19a6b] text-center">StyleVerse</div>
+
+
+            <nav class="space-y-3 text-sm font-['DM Sans']">
+                <a href="#" id="dashboard-link"
+                    class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fas fa-th-large text-lg w-5"></i>
+                    <span>Dashboard</span>
+                    <i id="dashboard-arrow"
+                        class="fa-solid fa-angle-right w-3 h-3 ml-auto transform transition-transform duration-200"></i>
+                </a>
+                <div id="dashboard-submenu" class="ml-6 space-y-3 hidden text-xs">
+                    <a href="user.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-users text-lg w-5"></i>
+                        <span>Users</span>
+                    </a>
+                    <a href="roles.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-user-shield text-lg w-5"></i>
+                        <span>Roles</span>
+                    </a>
+                    <a href="permission.html"
+                        class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                        <i class="fa-solid fa-unlock text-lg w-5"></i>
+                        <span>Permissions</span>
+                    </a>
+                </div>
+
+                <a href="#" id="experiments-link" data-target="experiments-section"
+                    class="nav-link-switch flex items-center space-x-4 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10 active bg-white bg-opacity-20 font-bold">
+                    <i class="fa-solid fa-flask text-lg w-5"></i>
+                    <span>Experiments</span>
+                </a>
+
+                <a href="#" id="policy-link" data-target="policy-section"
+                    class="nav-link-switch flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-scroll text-lg w-5"></i>
+                    <span>Policy & Attribution</span>
+                </a>
+
+                <a href="#" id="arbitration-visualizer-link" data-target="arbitration-visualizer-section"
+                    class="nav-link-switch flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-gavel text-lg w-5"></i>
+                    <span>Arbitration Visualizer</span>
+                </a>
+
+                <a href="#" id="trace-explorer-link" data-target="trace-explorer-section"
+                    class="nav-link-switch flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-chart-line text-lg w-5"></i>
+                    <span>Trace Explorer & Cache Inspector </span>
+                </a>
+
+                <a href="#" id="runs-alerts-link" data-target="runs-alerts-console"
+                    class="nav-link-switch flex items-center space-x-6 p-2 rounded-lg transition duration-200 hover:bg-white hover:bg-opacity-10">
+                    <i class="fa-solid fa-chart-line text-lg w-5"></i>
+                    <span>Runs & Alerts Console </span>
+                </a>
+            </nav>
+        </div>
+        <div class="mt-8 text-xs font-['DM Sans']">
+            <a href="#"
+                class="flex items-center space-x-6 p-2 rounded-lg transition duration-200 bg-gray-500 bg-opacity-30 hover:bg-opacity-50">
+                <i class="fa-solid fa-right-from-bracket text-lg w-5"></i>
+                <span>Logout</span>
+            </a>
+            <div class="flex items-center mt-4 p-2 space-x-4">
+                <img class="w-8 h-8 rounded-full border-2 border-white" src="Image.png" alt="User Profile Picture">
+                <span class="text-xs font-medium">Jenifer winget</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content flex-grow p-6 ml-64">
+
+        <div id="experiments-section" class="content-section max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Experiments Console</h1>
+            </header>
+
+            <section id="create-experiment" class="mb-6 p-5 border rounded-lg shadow-sm bg-gray-50">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Create New Experiment</h2>
+                <form id="experiment-form" class="grid grid-cols-1 md:grid-cols-2 gap-5 font-['Nunito Sans']">
+                    <div>
+                        <label for="exp-name" class="block text-xs font-medium text-gray-700">Experiment Name</label>
+                        <input type="text" id="exp-name"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                    </div>
+                    <div>
+                        <label for="task" class="block text-xs font-medium text-gray-700">Task</label>
+                        <select id="task"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                            <option>outfit recommendation</option>
+                            <option>price nudge</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="split" class="block text-xs font-medium text-gray-700">Population Split</label>
+                        <input type="text" id="split" value="50/50"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                    </div>
+                    <div>
+                        <label for="metric" class="block text-xs font-medium text-gray-700">Primary Metric</label>
+                        <select id="metric"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs">
+                            <option>CTR</option>
+                            <option>CVR</option>
+                            <option>AOV</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <button type="submit"
+                            class="w-full py-2 px-3 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-custom-accent hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-accent transition">
+                            Launch Experiment
+                        </button>
+                    </div>
+                </form>
+                <div id="status-message" class="mt-3 text-center text-xs font-medium hidden"></div>
+            </section>
+
+            <section id="active-experiments" class="mb-6">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Active Experiments</h2>
+                <div id="experiments-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                </div>
+            </section>
+
+            <section id="uplift-chart-container" class="p-5 border rounded-lg shadow-sm bg-gray-50 uplift-container">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Uplift Visualization</h2>
+                <div id="uplift-content" class="uplift-content">
+                    <canvas id="upliftChart" class="w-full h-80"></canvas>
+                    <div id="uplift-message" class="uplift-message"></div>
+                </div>
+                <div id="no-data-message" class="text-center text-gray-500 mt-3 text-sm hidden">Select an experiment to
+                    see data.</div>
+            </section>
+        </div>
+
+        <div id="policy-section" class="content-section max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 hidden">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Policy & Attribution Explorer</h1>
+            </header>
+
+            <section id="policy-dashboard" class="mb-6 p-5 border rounded-lg shadow-sm bg-gray-50">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Policy Dashboard</h2>
+                <div id="policies-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-custom-accent">
+                        <h3 class="text-base font-bold text-custom-accent mb-2 font-['Nunito Sans']">Outfit
+                            Recommendation</h3>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Active Policy:</strong> pol_rec_v5</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Version:</strong> 5</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Rollout %:</strong> 100%</p>
+                        <p class="text-xs text-gray-600"><strong>Exploration Rate:</strong> 5%</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-lg shadow-md border-t-4 border-custom-accent">
+                        <h3 class="text-base font-bold text-custom-accent mb-2 font-['Nunito Sans']">Price Nudge</h3>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Active Policy:</strong> pol_price_v3</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Version:</strong> 3</p>
+                        <p class="text-xs text-gray-600 mb-1"><strong>Rollout %:</strong> 75%</p>
+                        <p class="text-xs text-gray-600"><strong>Exploration Rate:</strong> 10%</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="attribution-viewer" class="p-5 border rounded-lg shadow-sm bg-gray-50">
+                <h2 class="text-lg font-semibold mb-3 font-['Nunito Sans']">Attribution Viewer</h2>
+                <div class="flex flex-col md:flex-row gap-3 mb-4">
+                    <input type="text" id="request-id-input"
+                        class="flex-grow rounded-md border-gray-300 shadow-sm focus:border-custom-accent focus:ring-custom-accent text-xs"
+                        placeholder="Enter request_id (e.g., req_123)">
+                    <button id="search-btn"
+                        class="py-2 px-3 border border-transparent rounded-md shadow-sm text-xs font-medium text-white bg-custom-accent hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-accent transition">
+                        Search Trace
+                    </button>
+                </div>
+                <div id="attribution-results" class="space-y-5">
+                </div>
+            </section>
+        </div>
+
+
+        <div id="arbitration-visualizer-section"
+            class="content-section max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 hidden">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Arbitration Visualizer Console</h1>
+            </header>
+
+            <div id="mainContentMeta" class="flex-1 main-content-meta">
+                <main class="p-8">
+                    <header class="mb-6 flex items-start justify-between">
+                        <div>
+                            <h1 class="text-3xl font-extrabold" style="color:var(--accent)">Agent Run Console</h1>
+                            <p class="text-sm text-gray-500">Live Run <span id="connectionBadge"
+                                    class="pill">disconnected</span></p>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <button id="themeToggle"
+                                class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                aria-label="Toggle dark/light theme">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                                </svg>
+                            </button>
+                            <button id="loginBtn"
+                                class="px-4 py-2 rounded text-white shadow-md hover:opacity-80 transition-opacity"
+                                style="background:var(--accent)" aria-label="Login">Login</button>
+                            <button id="clearBtn" class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                aria-label="Clear all messages">Clear</button>
+                        </div>
+                    </header>
+
+                    <div class="flex items-center gap-4 mb-6">
+                        <button class="pill">All agents</button>
+                        <label class="inline-flex items-center gap-2 text-gray-700"><input id="ruleFailOnly"
+                                type="checkbox" class="rounded" /> Rule-fail only</label>
+
+                        <div class="flex-1 relative">
+                            <input id="searchBox" type="search" placeholder="Search here"
+                                class="w-full px-4 py-3 rounded-full border shadow-sm" aria-label="Search messages" />
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <section class="md:col-span-2">
+                            <div class="trace-wrap">
+                                <div id="messages" class="space-y-4 thin-scroll max-h-[420px] overflow-auto" role="log"
+                                    aria-live="polite">
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <h3 class="font-semibold">Arbitration Results</h3>
+                                <div class="mt-3 flex items-center gap-3">
+                                    <div id="resultsText" class="text-sm text-gray-500">Waiting for results...</div>
+                                    <button id="copyTrace"
+                                        class="px-3 py-1 rounded border text-sm hover:bg-gray-100 transition-colors"
+                                        aria-label="Copy trace URI">Copy trace URI</button>
+                                    <button id="openTrace"
+                                        class="px-3 py-1 rounded border text-sm hover:bg-gray-100 transition-colors"
+                                        aria-label="Open trace in new tab">Open Trace</button>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <h3 class="font-semibold">Policy & Budget</h3>
+                                <div class="mt-3 bg-white p-4 rounded shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-sm">Mode</div>
+                                        <div class="flex gap-2 ml-4">
+                                            <button class="px-3 py-1 rounded border mode-btn active"
+                                                data-mode="standard">Standard</button>
+                                            <button id="dryRunBtn" class="px-3 py-1 rounded border mode-btn"
+                                                data-mode="dry" aria-label="Perform a dry run preview">Dry Run
+                                                Preview</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 text-sm text-gray-600">
+                                        <div>Latency Budget: <strong id="latencyBudget">2500 ms</strong></div>
+                                        <div class="mt-1">Cost Budget: <strong id="costBudget">10 cents</strong></div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <h4 class="font-semibold">Blackboard Inspector</h4>
+                                        <div id="blackboardInspector" class="text-sm text-gray-500 mt-2">No blackboard
+                                            entries yet.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </section>
+
+                        <aside>
+                            <div class="bg-white p-4 rounded shadow-sm border">
+                                <h4 class="font-semibold">Final Pick</h4>
+                                <div id="finalPickContainer" class="mt-3 text-sm text-gray-700">No final pick yet</div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded shadow-sm border mt-4">
+                                <h4 class="font-semibold">Controls</h4>
+                                <div class="mt-3 flex flex-col gap-2">
+                                    <button id="cancelRun"
+                                        class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                        aria-label="Cancel current run">Cancel Run</button>
+                                    <button id="openRaw"
+                                        class="px-3 py-2 rounded border hover:bg-gray-100 transition-colors"
+                                        aria-label="Open raw trace data">Open Run (raw)</button>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <div id="messageContainer" class="fixed bottom-4 right-4 z-50"></div>
+                </main>
+            </div>
+        </div>
+
+        <div id="trace-explorer-section"
+            class="content-section max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 hidden">
+            <header class="mb-6">
+                <h1
+                    class="text-xl font-bold text-center bg-custom-dark text-custom-light py-3 px-5 rounded-lg shadow-md font-['Inter']">
+                    Trace Explorer & Cache Inspector
+                </h1>
+            </header>
+
+            <div class="p-4">
+                <main class="p-8 lg:p-12">
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                        <div class="lg:col-span-1">
+                            <h2 class="text-lg font-semibold text-text-dark mb-4" style="color:var(--accent)">Recent
+                                Requests</h2>
+
+                            <div id="request-list-container" class="space-y-4">
+                            </div>
+
+                        </div>
+
+                        <div class="lg:col-span-2 space-y-3">
+
+                            <div class="bg-bg-card p-6 rounded-xl shadow-lg">
+                                <h2 class="text-lg font-semibold text-text-dark mb-4" style="color:var(--accent)">Model
+                                    Trace Details</h2>
+                                <div id="trace-details-summary" class="grid grid-cols-2 md:grid-cols-4 gap-y-3 text-sm">
+                                </div>
+
+                                <div class="mt-8">
+                                    <h3 class="text-md font-semibold text-text-dark mb-4" style="color:var(--accent)">
+                                        Execution Timeline</h3>
+                                    <div id="timeline-container" class="space-y-4 border-l border-text-muted pl-4">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="planner-dag-panel" class="bg-bg-card p-6 rounded-xl shadow-lg">
+                                <h3 class="text-md font-semibold text-text-dark mb-4" style="color:var(--accent)">
+                                    Planner DAG Viewer</h3>
+                                <div id="planner-dag-viewer" class="h-28 rounded-lg p-4 transition-all duration-300">
+                                </div>
+                            </div>
+
+                            <div class="bg-bg-card p-6 rounded-xl shadow-lg">
+                                <h3 class="text-md font-semibold text-text-dark mb-4" style="color:var(--accent)">Cache
+                                    Inspector</h3>
+                                <div id="cache-inspector" class="space-y-3">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+
+        <div id="runs-alerts-console"
+            class="content-section max-w-7xl mx-auto bg-white rounded-lg shadow-lg p-6 hidden">
+            <main class="flex-1 p-8 overflow-y-auto">
+                <h2 class="text-3xl font-bold mb-6 text-primary dark:text-primary">Runs & Alerts Console</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow">
+                        <h3 class="text-sm font-medium text-subtext-light dark:text-subtext-dark">P95 Latency </h3>
+                        <p class="text-2xl font-semibold text-text-light dark:text-text-dark">1.21s</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow">
+                        <h3 class="text-sm font-medium text-subtext-light dark:text-subtext-dark">Success Rate </h3>
+                        <p class="text-2xl font-semibold text-success-light dark:text-success-dark">99.8%</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow">
+                        <h3 class="text-sm font-medium text-subtext-light dark:text-subtext-dark">Active Runs </h3>
+                        <p class="text-2xl font-semibold text-text-light dark:text-text-dark">1,245</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow">
+                        <h3 class="text-sm font-medium text-subtext-light dark:text-subtext-dark">Fallback Rate </h3>
+                        <p class="text-2xl font-semibold text-warning-light dark:text-warning-dark">0.5%</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Runs Management</h3>
+                        <div class="flex flex-wrap gap-4 mb-4">
+                            <input
+                                class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark"
+                                placeholder="Filter by Tenant..." type="text" />
+                            <input
+                                class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark"
+                                placeholder="Filter by Workflow..." type="text" />
+                            <select
+                                class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark">
+                                <option>Status: All</option>
+                                <option>Running</option>
+                                <option>Succeeded</option>
+                                <option>Failed</option>
+                                <option>Queued</option>
+                            </select>
+                            <input
+                                class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark"
+                                type="date" />
+                        </div>
+                        <div class="bg-card-light dark:bg-card-dark rounded-lg shadow overflow-hidden">
+                            <table class="w-full text-sm text-left text-text-light dark:text-text-dark">
+                                <thead
+                                    class="bg-gray-100 dark:bg-gray-800 text-xs uppercase text-subtext-light dark:text-subtext-dark">
+                                    <tr>
+                                        <th class="p-4" scope="col"><input type="checkbox" /></th>
+                                        <th class="p-4" scope="col">Run ID</th>
+                                        <th class="p-4" scope="col">Tenant</th>
+                                        <th class="p-4" scope="col">Workflow</th>
+                                        <th class="p-4" scope="col">Status</th>
+                                        <th class="p-4" scope="col">Timestamp</th>
+                                        <th class="p-4" scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-border-light dark:border-border-dark">
+                                        <td class="p-4"><input type="checkbox" /></td>
+                                        <td class="p-4 font-mono">req_89ab</td>
+                                        <td class="p-4">Tenant A</td>
+                                        <td class="p-4">recommend</td>
+                                        <td class="p-4"><span
+                                                class="px-2 py-1 text-xs font-medium rounded-full bg-success-bg-light text-success-light dark:bg-success-bg-dark dark:text-success-dark">Succeeded</span>
+                                        </td>
+                                        <td class="p-4">03:32:10 PM</td>
+                                        <td class="p-4 space-x-2">
+                                            <button class="text-blue-500 hover:text-blue-700"><span
+                                                    class="material-icons-outlined text-base">pause</span></button>
+                                            <button class="text-red-500 hover:text-red-700"><span
+                                                    class="material-icons-outlined text-base">stop</span></button>
+                                            <button class="text-green-500 hover:text-green-700"><span
+                                                    class="material-icons-outlined text-base">refresh</span></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-border-light dark:border-border-dark">
+                                        <td class="p-4"><input type="checkbox" /></td>
+                                        <td class="p-4 font-mono">req_c1d2</td>
+                                        <td class="p-4">Tenant B</td>
+                                        <td class="p-4">billing</td>
+                                        <td class="p-4"><span
+                                                class="px-2 py-1 text-xs font-medium rounded-full bg-failure-bg-light text-failure-light dark:bg-failure-bg-dark dark:text-failure-dark">Failed</span>
+                                        </td>
+                                        <td class="p-4">03:31:55 PM</td>
+                                        <td class="p-4 space-x-2">
+                                            <button class="text-blue-500 hover:text-blue-700"><span
+                                                    class="material-icons-outlined text-base">pause</span></button>
+                                            <button class="text-red-500 hover:text-red-700"><span
+                                                    class="material-icons-outlined text-base">stop</span></button>
+                                            <button class="text-green-500 hover:text-green-700"><span
+                                                    class="material-icons-outlined text-base">refresh</span></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-border-light dark:border-border-dark">
+                                        <td class="p-4"><input type="checkbox" /></td>
+                                        <td class="p-4 font-mono">req_e3f4</td>
+                                        <td class="p-4">Tenant A</td>
+                                        <td class="p-4">onboarding</td>
+                                        <td class="p-4"><span
+                                                class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">Running</span>
+                                        </td>
+                                        <td class="p-4">03:30:10 PM</td>
+                                        <td class="p-4 space-x-2">
+                                            <button class="text-blue-500 hover:text-blue-700"><span
+                                                    class="material-icons-outlined text-base">pause</span></button>
+                                            <button class="text-red-500 hover:text-red-700"><span
+                                                    class="material-icons-outlined text-base">stop</span></button>
+                                            <button class="text-green-500 hover:text-green-700"><span
+                                                    class="material-icons-outlined text-base">refresh</span></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-border-light dark:border-border-dark">
+                                        <td class="p-4"><input type="checkbox" /></td>
+                                        <td class="p-4 font-mono">req_g5h6</td>
+                                        <td class="p-4">Tenant C</td>
+                                        <td class="p-4">recommend</td>
+                                        <td class="p-4"><span
+                                                class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">Queued</span>
+                                        </td>
+                                        <td class="p-4">03:25:00 PM</td>
+                                        <td class="p-4 space-x-2">
+                                            <button class="text-blue-500 hover:text-blue-700"><span
+                                                    class="material-icons-outlined text-base">pause</span></button>
+                                            <button class="text-red-500 hover:text-red-700"><span
+                                                    class="material-icons-outlined text-base">stop</span></button>
+                                            <button class="text-green-500 hover:text-green-700"><span
+                                                    class="material-icons-outlined text-base">refresh</span></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1 space-y-8">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Active Alerts
+                            </h3>
+                            <div class="space-y-3">
+                                <div
+                                    class="p-4 rounded-lg shadow bg-failure-bg-light dark:bg-failure-bg-dark border border-failure-light dark:border-failure-dark">
+                                    <p class="text-sm font-semibold text-failure-light dark:text-failure-dark">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i> High Failure Rate (2.1%)
+                                    </p>
+                                    <p class="text-xs text-subtext-light dark:text-subtext-dark mt-1">Workflow
+                                        'billing' has exceeded the 1.0% threshold.</p>
+                                </div>
+                                <div
+                                    class="p-4 rounded-lg shadow bg-yellow-100 dark:bg-yellow-900 border border-warning-light dark:border-warning-dark">
+                                    <p class="text-sm font-semibold text-warning-light dark:text-warning-dark">
+                                        <i class="fas fa-clock mr-2"></i> P95 Latency Spike (1.3s)
+                                    </p>
+                                    <p class="text-xs text-subtext-light dark:text-subtext-dark mt-1">Performance
+                                        is degraded. Investigate resource usage.</p>
+                                </div>
+                                <div
+                                    class="p-4 rounded-lg shadow bg-blue-100 dark:bg-blue-900 border border-info-light dark:border-info-dark">
+                                    <p class="text-sm font-semibold text-info-light dark:text-info-dark">
+                                        <i class="fas fa-info-circle mr-2"></i> New Tenant Added
+                                    </p>
+                                    <p class="text-xs text-subtext-light dark:text-subtext-dark mt-1">Tenant D has
+                                        been successfully provisioned.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Worker Status
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow">
+                                    <h4 class="text-md font-semibold text-text-light dark:text-text-dark mb-2">
+                                        Worker Pool 1</h4>
+                                    <div
+                                        class="grid grid-cols-2 gap-2 text-sm text-subtext-light dark:text-subtext-dark">
+                                        <p>Queue: 24</p>
+                                        <p class="text-success-light dark:text-success-dark font-medium">Status: Idle
+                                        </p>
+                                        <p>Utilization: 12%</p>
+                                        <p>Latency: 0.8s</p>
+                                    </div>
+                                </div>
+                                <div class="bg-card-light dark:bg-card-dark p-4 rounded-lg shadow">
+                                    <h4 class="text-md font-semibold text-text-light dark:text-text-dark mb-2">
+                                        Worker Pool 2</h4>
+                                    <div
+                                        class="grid grid-cols-2 gap-2 text-sm text-subtext-light dark:text-subtext-dark">
+                                        <p>Queue: 5</p>
+                                        <p class="text-warning-light dark:text-warning-dark font-medium">Status: Busy
+                                        </p>
+                                        <p>Utilization: 85%</p>
+                                        <p>Latency: 1.5s</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link-switch');
+            const contentSections = document.querySelectorAll('.main-content > .content-section');
+            const themeToggle = document.getElementById('themeToggle');
+
+            const sectionMap = {
+                'experiments-link': 'experiments-section',
+                'policy-link': 'policy-section',
+                'arbitration-visualizer-link': 'arbitration-visualizer-section',
+                'trace-explorer-link': 'trace-explorer-section',
+                'runs-alerts-link': 'runs-alerts-console'
+            };
+
+
+            function setActiveLink(clickedLink) {
+
+                document.querySelectorAll('nav a').forEach(link => {
+                    link.classList.remove('active', 'bg-white', 'bg-opacity-20', 'font-bold');
+                    link.classList.add('hover:bg-white', 'hover:bg-opacity-10');
+                });
+
+                if (clickedLink) {
+                    clickedLink.classList.add('active', 'bg-white', 'bg-opacity-20', 'font-bold');
+                    clickedLink.classList.remove('hover:bg-white', 'hover:bg-opacity-10');
+                }
+            }
+
+
+            function showSection(targetSectionId) {
+                contentSections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                const targetSection = document.getElementById(targetSectionId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+            }
+
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const linkId = this.id;
+                    const targetSectionId = sectionMap[linkId];
+
+                    if (targetSectionId) {
+                        showSection(targetSectionId);
+                        setActiveLink(this);
+                    }
+                });
+            });
+
+
+            const dashboardLink = document.getElementById('dashboard-link');
+            if (dashboardLink) {
+                dashboardLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const submenu = document.getElementById('dashboard-submenu');
+                    const arrow = document.getElementById('dashboard-arrow');
+                    submenu.classList.toggle('hidden');
+                    arrow.classList.toggle('rotate-90');
+                });
+            }
+
+
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    document.body.classList.toggle('dark');
+                    const newTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+                    document.body.setAttribute('data-theme', newTheme);
+                });
+            }
+
+            const activeLink = document.querySelector('.sidebar a.active');
+            if (activeLink) {
+
+                contentSections.forEach(section => section.classList.add('hidden'));
+
+
+                const initialSectionId = sectionMap[activeLink.id] || 'experiments-section';
+                const initialSection = document.getElementById(initialSectionId);
+                if (initialSection) {
+                    initialSection.classList.remove('hidden');
+                }
+            }
+        });
+    </script>
+
+    <script>
+
+        const TRACE_API_URL = "./traces.json"
+        const CACHE_API_URL = "https://api.example.com/v1/cache";
+
+
+        let traces = [];
+        let cacheMetrics = [];
+
+        function renderRequestList(traceArray) {
+            const container = document.getElementById('request-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!traceArray || traceArray.length === 0) {
+                container.innerHTML = `<div class="p-4 bg-white rounded shadow-sm text-sm text-gray-500">No recent requests.</div>`;
+                return;
+            }
+
+
+            traceArray.forEach(trace => {
+
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = createRequestCard(trace);
+                const cardEl = wrapper.firstElementChild;
+                if (!cardEl) return;
+
+
+                cardEl.addEventListener('click', () => {
+
+                    renderTraceDetails(trace);
+
+                    document.querySelectorAll('#request-list-container .request-card').forEach(c => c.classList.remove('active-request'));
+                    cardEl.classList.add('active-request');
+
+                    cardEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                });
+
+                container.appendChild(cardEl);
+            });
+        }
+
+
+        async function loadTracesFromAPI() {
+            try {
+
+                const container = document.getElementById('request-list-container');
+                if (container) container.innerHTML = `<div class="p-4 text-sm text-gray-500">Loading traces...</div>`;
+
+                const res = await fetch(TRACE_API_URL, { method: 'GET', credentials: 'same-origin' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+
+
+                traces = (Array.isArray(data) ? data : data.traces || []).map(item => ({
+                    id: item.id || item.request_id || 'unknown_id',
+                    status: (item.status || item.state || 'FAILURE').toString().toUpperCase(),
+                    endpoint: item.endpoint || item.path || item.url || '/unknown',
+                    timestamp: item.timestamp || item.time || item.created_at || 'N/A',
+                    totalLatency: item.latency || item.totalLatency || item.total_latency || '0 ms',
+                    executionSteps: item.executionSteps || item.steps || item.execution_steps || [],
+                    cacheStatus: item.cacheStatus || (item.cache && item.cache.status) || 'MISS',
+                    cacheKey: item.cacheKey || (item.cache && item.cache.key) || '',
+
+                    raw: item
+                }));
+
+
+                renderRequestList(traces);
+
+
+                if (traces.length > 0) {
+                    renderTraceDetails(traces[0]);
+
+                    const firstCard = document.querySelector('#request-list-container .request-card');
+                    if (firstCard) firstCard.classList.add('active-request');
+                }
+
+            } catch (err) {
+                console.error('Trace fetch failed:', err);
+                const container = document.getElementById('request-list-container');
+                if (container) container.innerHTML = `<div class="p-4 text-sm text-red-500">Failed to load traces.</div>`;
+            }
+        }
+
+
+        async function loadCacheFromAPI() {
+            try {
+                const res = await fetch(CACHE_API_URL, { method: 'GET', credentials: 'same-origin' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                cacheMetrics = data;
+
+                if (typeof renderCacheInspector === 'function') {
+                    renderCacheInspector(cacheMetrics);
+                } else {
+
+                    const cacheContainer = document.getElementById('cache-inspector');
+                    if (cacheContainer) cacheContainer.innerHTML = `<pre class="text-xs">${JSON.stringify(cacheMetrics, null, 2)}</pre>`;
+                }
+            } catch (err) {
+                console.error('Cache fetch failed:', err);
+                const cacheContainer = document.getElementById('cache-inspector');
+                if (cacheContainer) cacheContainer.innerHTML = `<div class="p-2 text-sm text-red-500">Cache data unavailable.</div>`;
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            loadTracesFromAPI();
+
+        });
+
+
+        function createRequestCard(trace) {
+            const isSuccess = trace.status === 'SUCCESS';
+
+            let statusBg, statusText;
+            if (isSuccess) {
+                statusBg = 'bg-green-100';
+                statusText = 'text-success';
+            } else {
+                statusBg = 'bg-red-100';
+                statusText = 'text-failure';
+            }
+
+
+            const borderColor = 'border-accent-primary';
+
+            return `
+                <div 
+                    class="request-card bg-bg-card p-4 rounded-xl shadow-md border-l-4 ${borderColor} cursor-pointer hover:shadow-lg transition duration-200"
+                    data-trace-id="${trace.id}"
+                >
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="font-mono text-text-dark font-semibold">${trace.id}</div>
+                        <span class="px-2 py-0.5 text-xs font-medium rounded-full ${statusBg} ${statusText}">
+                            ${trace.status.toUpperCase()}
+                        </span>
+                    </div>
+                  <p class="text-xs text-timestamp mt-1">${trace.endpoint} @ ${trace.timestamp}</p>
+<p class="text-sm text-text-dark mt-2">Total Latency: 
+   <span class="font-medium text-latency">${trace.totalLatency}</span></p>
+
+                </div>
+            `;
+        }
+
+        function renderTraceDetails(trace) {
+            const summaryContainer = document.getElementById('trace-details-summary');
+            const timelineContainer = document.getElementById('timeline-container');
+            const plannerDagViewer = document.getElementById('planner-dag-viewer');
+            const cacheInspector = document.getElementById('cache-inspector');
+
+            summaryContainer.innerHTML = `
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Request ID</p>
+                    <p class="text-text-dark font-medium">${trace.id}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Endpoint</p>
+                    <p class="text-text-dark font-medium">${trace.endpoint}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Total Latency</p>
+                    <p class="text-text-dark font-medium">${trace.totalLatency}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Cache</p>
+                    <p class="font-medium ${trace.cacheStatus === 'MISS' ? 'text-accent-primary' : 'text-hit-text'}">${trace.cacheStatus}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Status</p>
+                    <p class="font-medium ${trace.status === 'SUCCESS' ? 'text-accent-primary' : 'text-status-failure-text'}">${trace.status}</p>
+                </div>
+                <div class="col-span-1">
+                    <p class="text-text-secondary text-xs">Timestamp</p>
+                    <p class="text-text-dark font-medium">${trace.timestamp}</p>
+                </div>
+                <div class="col-span-2">
+                    <p class="text-text-secondary text-xs">Target Latency (P95)</p>
+                    <p class="text-text-dark font-medium">${trace.isMultiModel ? '< 2.5 s (Multi-Model)' : '< 800 ms (Single-Model)'}</p>
+                </div>
+            `;
+
+
+            if (trace.executionSteps.length === 0) {
+                timelineContainer.innerHTML = `<p class="text-text-secondary text-sm pt-2">Execution trace is empty (served from cache).</p>`;
+            } else {
+                timelineContainer.innerHTML = trace.executionSteps.map(step => {
+                    const statusClass = step.error ? 'bg-status-failure-text' : 'bg-text-secondary';
+                    const latencyColor = step.error ? 'text-status-failure-text' : 'text-accent-primary';
+                    const detailText = step.error
+                        ? `<p class="text-sm text-status-failure-text">ERROR: Circuit Breaker triggered or execution failed.</p>`
+                        : `<p class="text-sm text-text-secondary">Latency: <span class="font-bold ${latencyColor}">${step.latency}</span> | Starts at: ${step.startsAt}</p>`;
+
+                    return `
+                        <div class="relative">
+                            <div class="absolute -left-5 top-1 w-3 h-3 ${statusClass} rounded-full border-2 border-bg-card"></div>
+                            <p class="font-semibold text-text-dark">${step.name}</p>
+                            ${detailText}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+
+
+            let dagContent = '';
+            let dagPanelClasses = 'border-2 transition-all duration-300 ';
+
+            if (trace.cacheStatus === 'HIT') {
+                dagPanelClasses += 'border-hit-text/50';
+                dagContent = `
+                    <div class="flex flex-col items-center justify-center h-full bg-hit-bg rounded-lg p-4">
+                        <svg class="w-8 h-8 text-hit-text mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.103a12.042 12.042 0 00-7.796-4.685C9.72 2.376 7.552 2 5.5 2 3.448 2 1.28 2.376.178 3.212m10.82 17.576C7.94 18.89 4.3 15.54 2.12 12.086 1.28 10.748.178 9.58 0 8.5"></path></svg>
+                        <p class="text-hit-text font-medium">Execution Skipped.</p>
+                        <p class="text-sm text-hit-text text-center">Planner DAG was not executed due to a **Cache Hit**.</p>
+                    </div>
+                `;
+            } else {
+                dagPanelClasses += 'border-text-muted/30';
+                dagContent = `
+                    <div class="flex items-center justify-around h-full bg-bg-main rounded-lg p-4">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-accent-primary/80 rounded-full flex items-center justify-center text-white text-xs font-semibold">Intent</div>
+                        </div>
+                        <div class="text-text-secondary text-xl font-bold">→</div>
+                        <div class="flex flex-col space-y-2">
+                            <div class="w-16 h-16 bg-accent-primary/50 rounded-full flex items-center justify-center text-text-dark text-xs font-semibold">Style</div>
+                            <div class="w-16 h-16 bg-accent-primary/50 rounded-full flex items-center justify-center text-text-dark text-xs font-semibold">Eco</div>
+                            <div class="w-16 h-16 bg-accent-primary/50 rounded-full flex items-center justify-center text-text-dark text-xs font-semibold">Trend</div>
+                        </div>
+                        <div class="text-text-secondary text-xl font-bold">→</div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-accent-primary rounded-full flex items-center justify-center text-white text-xs font-semibold">Agg</div>
+                        </div>
+                    </div>
+                `;
+            }
+            plannerDagViewer.className = `h-28 rounded-lg p-4 transition-all duration-300 ${dagPanelClasses}`;
+            plannerDagViewer.innerHTML = dagContent;
+
+
+
+            cacheInspector.innerHTML = `
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Cache Status</p>
+                    <p class="font-bold text-xl ${trace.cacheStatus === 'HIT' ? 'text-hit-text' : 'text-accent-primary'}">${trace.cacheStatus} ${trace.cacheStatus === 'HIT' ? '' : '(New Entry Written)'}</p>
+                </div>
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Key</p>
+                    <p class="font-mono text-text-dark break-all">${trace.cacheKey}</p>
+                </div>
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Remaining TTL</p>
+                    <p class="text-text-dark font-medium">${trace.cacheTtl}</p>
+                </div>
+                <div class="text-sm">
+                    <p class="text-text-secondary text-xs">Entry Size</p>
+                    <p class="text-text-dark font-medium">${trace.cacheSize}</p>
+                </div>
+                <p class="text-xs text-text-secondary mt-4 pt-3 border-t border-text-muted/30">
+                    This result was ${trace.cacheStatus === 'HIT' ? 'retrieved directly from' : 'a new entry for'} the Redis Fingerprint Cache (24h TTL per spec).
+                </p>
+            `;
+        }
+
+
+        function initApp() {
+            const listContainer = document.getElementById('request-list-container');
+            let initialTraceId = null;
+
+
+            listContainer.innerHTML = mockTraces.map((trace, index) => {
+                if (index === 0) {
+                    initialTraceId = trace.id;
+                }
+                return createRequestCard(trace);
+            }).join('');
+
+
+            const cards = document.querySelectorAll('#trace-explorer-section .request-card');
+            cards.forEach(card => {
+                card.addEventListener('click', (event) => {
+
+                    cards.forEach(c => c.classList.remove('active-request'));
+
+
+                    const clickedCard = event.currentTarget;
+                    clickedCard.classList.add('active-request');
+
+
+                    const traceId = clickedCard.getAttribute('data-trace-id');
+                    const selectedTrace = mockTraces.find(t => t.id === traceId);
+                    if (selectedTrace) {
+                        renderTraceDetails(selectedTrace);
+                    }
+                });
+            });
+
+
+            if (initialTraceId && mockTraces.length > 0) {
+                const firstCard = document.querySelector(`#trace-explorer-section .request-card[data-trace-id="${initialTraceId}"]`);
+                if (firstCard) {
+                    firstCard.classList.add('active-request');
+                    renderTraceDetails(mockTraces[0]);
+                }
+            }
+
+            console.log('Trace Explorer initialized with dynamic mock data.');
+        }
+
+
+    </script>
+</body>
+
+</html>
