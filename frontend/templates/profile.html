@@ -64,6 +64,7 @@
   </div>
 
   <script>
+    const APP_URL = "{{ api_url }}";
     async function loadUserProfile() {
       const token = localStorage.getItem("access_token");
       if (!token) {
@@ -71,7 +72,7 @@
         return;
       }
       try {
-        const response = await fetch("http://localhost:5000/auth/profile", {
+        const response = await fetch(`${APP_URL}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {
@@ -101,7 +102,7 @@
         return;
       }
       try {
-        const res = await fetch("http://localhost:5000/designs/my-designs", {
+        const res = await fetch(`${APP_URL}/designs/my-designs`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch designs");
@@ -127,7 +128,7 @@
       try {
         const token = localStorage.getItem('access_token');
         if (!token) return;
-        const response = await fetch('http://localhost:5000/product/my-products', {
+        const response = await fetch(`${APP_URL}/product/my-products`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Failed to fetch products');
@@ -175,7 +176,7 @@
         event.preventDefault();
         const formData = new FormData(form);
         try {
-          const response = await fetch("http://localhost:5000/auth/update_profile", {
+          const response = await fetch(`${APP_URL}/auth/update_profile`, {
             method: "POST",
             headers: {
               Authorization: "Bearer " + localStorage.getItem("access_token")

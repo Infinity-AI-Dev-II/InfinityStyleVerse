@@ -256,8 +256,7 @@
 
         <div class="form-group">
           <label for="colorPicker">Choose Color:</label>
-<input type="color" id="colorPicker" name="color" value="#000000" />
-
+          <input type="color" id="colorPicker" name="color" value="#000000" />
           <input type="hidden" name="color" id="selected-color" required />
         </div>
 
@@ -328,6 +327,7 @@
   </div>
 
   <script>
+    const APP_URL = "{{ api_url }}";
     const fileInput = document.getElementById("product-images");
     const previewContainer = document.getElementById("preview-container");
 
@@ -356,16 +356,11 @@
       });
     });
 
-    // Color selection
-    const colorSpans = document.querySelectorAll(".colors span");
+    //function to select color
     const selectedColorInput = document.getElementById("selected-color");
-
-    colorSpans.forEach((span) => {
-      span.addEventListener("click", () => {
-        colorSpans.forEach((c) => c.classList.remove("selected"));
-        span.classList.add("selected");
-        selectedColorInput.value = span.getAttribute("data-color");
-      });
+    document.getElementById('colorPicker').addEventListener('input', function() {
+     const color = this.value;
+     selectedColorInput.value = color;
     });
 
     // Publish button click
@@ -376,17 +371,33 @@
       const salePrice = document.querySelector('input[name="sale_price"]').value.trim();
       const discount = document.querySelector('input[name="discount"]').value.trim();
       const size = selectedSizeInput.value;
-      const color = selectedColorInput.value;
+      const color =  selectedColorInput.value;
       const tag = document.querySelector('input[name="tag"]').value.trim();
       const visibility = document.querySelector('input[name="visibility"]:checked').value;
       const scheduleDate = document.querySelector('input[name="schedule_date"]').value;
       const category = document.querySelector('select[name="category"]').value;
       const files = fileInput.files;
+      alert(files.length);
 
       const material = document.querySelector('input[name="material"]').value.trim();
       const waterUse = document.querySelector('input[name="water_use"]').value.trim();
       const carbonEmission = document.querySelector('input[name="carbon_emission"]').value.trim();
       const ethicalRating = document.querySelector('input[name="ethical_rating"]').value.trim();
+      
+      alert(
+  "Product Name: " + productName + "\n" +
+  "Brand: " + brand + "\n" +
+  "Description: " + description + "\n" +
+  "Sale Price: " + salePrice + "\n" +
+  "Size: " + size + "\n" +
+  "Color: " + color + "\n" +
+  "Files < 4: " + (files.length < 4) + "\n" +
+  "Material: " + material + "\n" +
+  "Water Use: " + waterUse + "\n" +
+  "Carbon Emission: " + carbonEmission + "\n" +
+  "Ethical Rating: " + ethicalRating
+);
+
 
       if (!productName || !brand || !description || !salePrice || !size || !color || files.length < 4 || !material || !waterUse || !carbonEmission || !ethicalRating) {
         alert("Please fill all required fields and upload at least 4 images.");
@@ -420,7 +431,7 @@
         formData.append("product_images[]", files[i]);
       }
 
-      fetch("http://127.0.0.1:5000/product", {
+      fetch(`${APP_URL}/product`, {
         method: "POST",
         body: formData,
         headers: {

@@ -204,6 +204,7 @@
   </div>
 
   <script>
+    const APP_URL = "{{ api_url }}";
     document.getElementById("registration-form").addEventListener("submit", function(e) {
       e.preventDefault(); 
 
@@ -212,7 +213,7 @@
       const password = document.getElementById("password").value;
       const role = document.getElementById("role").value;
 
-      fetch("http://localhost:5000/auth/register", {
+      fetch(`${APP_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

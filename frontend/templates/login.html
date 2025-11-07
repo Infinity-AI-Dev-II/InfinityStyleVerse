@@ -162,14 +162,14 @@
   <script>
   // Remove this if you no longer need onboarding
   // const onboardingUrl = "{{ url_for('main.onboarding') }}";
-
+  const APP_URL = "{{ api_url }}";
   document.getElementById("login-form").addEventListener("submit", function(e) {
     e.preventDefault();
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    fetch("http://localhost:5000/auth/login", {
+    fetch(`${APP_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

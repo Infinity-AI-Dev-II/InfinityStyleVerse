@@ -7,9 +7,12 @@ class Settings:
 
     # Database
     DB_USER = os.getenv("POSTGRES_USER", "postgres")
-    DB_PASS = os.getenv("POSTGRES_PASSWORD", "Nakshath7031")
-    DB_HOST = os.getenv("DATABASE_HOST", "postgres")   # <-- use service name, not 127.0.0.1
+    # DB_PASS = os.getenv("POSTGRES_PASSWORD", "Nakshath7031")
+    DB_PASS = os.getenv("POSTGRES_PASSWORD", "2006")
+    # DB_HOST = os.getenv("DATABASE_HOST", "postgres")   # <-- use service name, not 127.0.0.1
+    DB_HOST = os.getenv("DATABASE_HOST", "postgres")  
     DB_PORT = os.getenv("DATABASE_PORT", "5432")
+    # DB_NAME = os.getenv("POSTGRES_DB", "infinitystyleversedb")
     DB_NAME = os.getenv("POSTGRES_DB", "infinitystyleversedb")
 
     SQLALCHEMY_DATABASE_URI = os.getenv(
