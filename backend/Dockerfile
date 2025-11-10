@@ -1,4 +1,5 @@
 # backend/Dockerfile
+#Builds a Docker image for the backend Flask/Celery application
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -18,6 +19,7 @@ WORKDIR /app
 # copy requirements first for caching
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
+RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # copy application code

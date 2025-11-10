@@ -1,4 +1,11 @@
 # tasks/python_fn.py
+#   Provides a Celery task to safely execute user-defined Python functions.
+#   - Uses a restricted set of built-in functions (`SAFE_BUILTINS`) for security.
+#   - Supports function arguments, keyword arguments, and step context injection.
+#   - Captures printed output and handles timeouts or exceptions.
+#   - Returns structured results with success status, output text, result, and error info.
+#   - Designed for use in workflow steps that require dynamic Python function execution.
+
 from backend.celery_app import celery_app
 import logging
 import traceback

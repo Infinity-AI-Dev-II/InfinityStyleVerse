@@ -1,4 +1,5 @@
 # Dockerfile.api
+# Builds a Docker image for the backend API service using Gunicorn
 FROM python:3.11-slim
 
 # Set workdir
@@ -17,6 +18,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install gunicorn
 RUN pip install flower
+RUN pip install confluent-kafka   # Kafka client
+
 # Copy the rest of the app
 COPY . .
 
@@ -24,7 +27,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the API
-
 CMD ["gunicorn", "-b", "0.0.0.0:8000", "run:app"]
-
-

@@ -1,9 +1,12 @@
 # backend/app/seeds/seed_data.py
+#   Provides seed functions to populate the database with initial data
+#   for roles, permissions, users, and workflow definitions.
 from datetime import datetime
 from werkzeug.security import generate_password_hash
-
 from ..database import db
 from ..models import User, Role, Permission
+from ..models import WorkflowDef
+import json
 
 
 DEFAULT_ROLES = [
@@ -123,3 +126,65 @@ def run_seed() -> None:
     seed_roles_and_permissions()
     seed_users()
     print(" Seed complete: roles, permissions, and sample users inserted (idempotent).")
+
+SAMPLE_WORKFLOWS = [
+    {
+        "name": "Default Workflow",
+        "version": "1.0",
+        "dsl_yaml": json.dumps({
+            "nodes": {
+                "start": {
+                    "id": "start",
+                    "type": "task",
+                    "action": "noop",
+                    "incoming": []
+                }
+            },
+            "edges": []
+        }),
+        "created_by": "seed",
+    },
+    {
+        "name": "Fail/Success Workflow",
+        "version": "1.0",
+        "dsl_yaml": json.dumps({
+            "nodes": {
+                "start": {
+                    "id": "start",
+                    "type": "task",
+                    "action": "noop",
+                    "incoming": []
+                }
+            },
+            "edges": []
+        }),
+        "created_by": "seed",
+    },
+]
+
+def get_or_create_workflow(name: str, version: str, dsl_yaml: str, created_by: str) -> WorkflowDef:
+    wf = WorkflowDef.query.filter_by(name=name, version=version).first()
+    if wf:
+        return wf
+    wf = WorkflowDef(name=name, version=version, dsl_yaml=dsl_yaml, created_by=created_by)
+    db.session.add(wf)
+    db.session.commit()
+    return wf
+
+def seed_workflows() -> None:
+    for wf in SAMPLE_WORKFLOWS:
+        get_or_create_workflow(
+            name=wf["name"],
+            version=wf["version"],
+            dsl_yaml=wf["dsl_yaml"],
+            created_by=wf["created_by"]
+        )
+    print(f" Seeded {len(SAMPLE_WORKFLOWS)} workflows.")
+
+def run_seed() -> None:
+    seed_roles_and_permissions()
+    seed_users()
+    seed_workflows() 
+    print(" Seed complete: roles, permissions, users, and workflows inserted (idempotent).")
+
+

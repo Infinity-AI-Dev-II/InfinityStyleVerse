@@ -1,5 +1,4 @@
 # app/routes/auth.py
-
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -112,12 +111,12 @@ def register():
         if not role_obj:
             role_obj = Role(role_name=role_name)
             db.session.add(role_obj)
-            db.session.commit()   # commit to get id
+            db.session.commit()  
 
         new_user = User(
             name=name,
             email=email,
-            role=role_obj   # assign the Role instance (relationship)
+            role=role_obj  
         )
         new_user.password = password
 

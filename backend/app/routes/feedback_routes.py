@@ -14,7 +14,8 @@ def submit_feedback():
         data = request.get_json()
 
         if not data:
-            return jsonify({'error': 'No input data provided'}), 400
+            return jsonify({'error': 'No input '
+            'data provided'}), 400
 
         message = data.get('message')
         rating = data.get('rating')

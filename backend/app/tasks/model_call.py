@@ -1,3 +1,9 @@
+# backend/app/tasks/model_call.py
+#   Provides Celery tasks for basic fan-in/fan-out workflow patterns.
+#   - `join_task`: aggregates multiple inputs into a single list, handling None values.
+#   - `map_task`: executes a user-defined function (`user_func`) on each item in a list.
+#   - Supports parallel workflow execution and combining results, with error handling and logging.
+
 from backend.celery_app import celery_app
 import requests
 import logging

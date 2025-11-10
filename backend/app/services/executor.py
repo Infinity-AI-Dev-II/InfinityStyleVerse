@@ -1,4 +1,6 @@
 # services/executor.py
+# Purpose:
+#   Provides the core workflow execution engine.
 import json
 from ..database import db
 from ..models import Run, RunStep

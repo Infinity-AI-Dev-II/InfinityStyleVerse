@@ -1,4 +1,9 @@
+version: "3.9"
+
 services:
+  # ----------------
+  # DATABASE (Postgres)
+  # ----------------
   postgres:
     image: postgres:15
     environment:
@@ -9,13 +14,47 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-infinitystyleversedb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
+  # ----------------
+  # CACHE (Redis)
+  # ----------------
   redis:
     image: redis:7
     command: ["redis-server", "--save", "60", "1"]
     ports:
       - "6379:6379"
 
+  # ----------------
+  # KAFKA + ZOOKEEPER
+  # ----------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # ----------------
+  # FLASK API
+  # ----------------
   api:
     build:
       context: .
@@ -29,14 +68,22 @@ services:
       - DATABASE_PORT=5432
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:9092
       - PYTHONPATH=/app
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
     ports:
       - "8000:8000"
     restart: unless-stopped
 
+  # ----------------
+  # CELERY WORKER
+  # ----------------
   worker:
     build:
       context: .
@@ -50,13 +97,21 @@ services:
       - DATABASE_PORT=5432
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - KAFKA_BROKER=kafka:9092
       - PYTHONPATH=/app
     depends_on:
-      - redis
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
     command: ["celery", "-A", "backend.celery_app", "worker", "--loglevel=info", "--concurrency=2", "-Q", "default"]
     restart: unless-stopped
 
+  # ----------------
+  # FLOWER (Celery Monitoring)
+  # ----------------
   flower:
     build:
       context: .
@@ -72,6 +127,9 @@ services:
       - redis
       - worker
 
+  # ----------------
+  # LOCUST (Load Testing)
+  # ----------------
   locust:
     image: locustio/locust:2.31.2
     working_dir: /mnt/locust

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InfinityStyleVerse - Login</title>
+  <style>
+  
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f0fdfa, #d1fae5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 900px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      background-color: #fff;
+    }
+
+    .left-panel {
+      background: linear-gradient(to bottom right, #1f3f3f, #265b5b);
+      color: #fff;
+      padding: 50px 30px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .left-panel img {
+      width: 100%;
+      max-width: 280px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .left-panel h2 {
+      font-size: 30px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .left-panel p {
+      font-size: 15px;
+      color: #cbd5e1;
+      text-align: center;
+    }
+
+    .right-panel {
+      flex: 1;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .right-panel h2 {
+      font-size: 26px;
+      margin-bottom: 30px;
+      color: #1f3f3f;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    form input {
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border 0.3s ease;
+    }
+
+    form input:focus {
+      border-color: #1f3f3f;
+      outline: none;
+    }
+
+    .submit-btn {
+      background-color: #1f3f3f;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      background-color: #163333;
+    }
+
+    .login-link {
+      margin-top: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .login-link a {
+      color: #1f3f3f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .left-panel,
+      .right-panel {
+        padding: 40px 30px;
+      }
+
+      .left-panel img {
+        max-width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f" alt="Fashion Model" />
+      <h2>Welcome to InfinityStyleVerse</h2>
+      <p>The universal AI engine for global fashion</p>
+    </div>
+    <div class="right-panel">
+      <h2>Sign In to Your Account</h2>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Enter your Email" required />
+        <input type="password" id="password" placeholder="Enter your Password" required />
+        <button type="submit" class="submit-btn">Log In</button>
+      </form>
+      <div class="login-link">
+        Don't have an account? <a href="register.html">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("login-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.msg || "Login failed");
+          return;
+        }
+        // Store token or user info as needed (e.g., in localStorage)
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        alert("Login successful! Welcome " + data.user.name);
+        // Redirect to dashboard or home page
+        window.location.href = "dashboard.html"; // change as needed
+      })
+      .catch(error => {
+        console.error("Login error:", error);
+        alert("Login failed due to network error.");
+      });
+    });
+  </script>
+</body>
+</html>

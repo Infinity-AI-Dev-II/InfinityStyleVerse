@@ -1,3 +1,10 @@
+# backend/app/tasks/http_call.py
+#   Provides Celery tasks for parallel ("fan-out") and aggregation ("fan-in") of workflow steps.
+#   - `map_runner`: executes a user-defined function on a list of items concurrently using threads.
+#       • Captures individual results and errors for each item.
+#   - `join_runner`: aggregates outputs from multiple parallel steps and determines the overall status.
+#   - Enables scalable execution of independent workflow steps and collection of their results.
+
 import urllib.parse as urlparse
 import requests
 import logging

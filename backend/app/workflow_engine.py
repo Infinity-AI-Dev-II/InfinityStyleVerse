@@ -1,4 +1,7 @@
 # backend/app/workflow_engine.py
+#   Provides a utility to update the status of a workflow step (RunStep) in
+#   the database and emit a live event to notify listeners.
+#
 from backend.app.database import db
 from backend.app.models.run_steps import RunStep
 from backend.app.event_publisher import publish_step_event
