@@ -411,6 +411,7 @@
 </div>
 
 <script>
+  const APP_URL = "{{ api_url }}";//get the base URL
   // Show section logic
   function showSection(id) {
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -446,7 +447,7 @@ document.getElementById("upload-form").addEventListener("submit", async e => {
   formData.append("image", document.getElementById("image").files[0]);
 
   try {
-    const response = await fetch("http://localhost:5000/designs/upload", {
+    const response = await fetch(`${APP_URL}/designs/upload`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` }, // backticks here
       body: formData
@@ -466,7 +467,7 @@ document.getElementById("upload-form").addEventListener("submit", async e => {
 });
 async function fetchUserDesigns(category = 'All') {
   try {
-    const url = new URL('http://localhost:5000/designs/my-designs');
+    const url = new URL(`${APP_URL}/designs/my-designs`);
     if (category !== 'All') url.searchParams.append('category', category);
     const token = localStorage.getItem('access_token');
     if (!token) return;
@@ -518,8 +519,7 @@ function displayDesigns(designs) {
   console.log('Deleting design ID:', id);
 
   try {
-    const res = await fetch(`http://localhost:5000/designs/designs/<design_id>
-${id}`, {
+    const res = await fetch(`${APP_URL}/designs/designs/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -562,7 +562,7 @@ document.getElementById('update-design-form').addEventListener('submit', async e
   };
 
   try {
-    const res = await fetch(`http://localhost:5000/designs/designs/${id}`, {
+    const res = await fetch(`${APP_URL}/designs/designs/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -595,7 +595,7 @@ function filterByCategory(cat) {
     try {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      const response = await fetch('http://localhost:5000/product/my-products', {
+      const response = await fetch(`${APP_URL}/product/my-products`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('Failed to fetch products');
@@ -651,7 +651,7 @@ function filterByCategory(cat) {
     const token = localStorage.getItem('access_token');
     if (!token) return alert('You are not logged in.');
     try {
-      const res = await fetch(`http://localhost:5000/product/${id}`, {
+      const res = await fetch(`${APP_URL}/product/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -691,7 +691,7 @@ function filterByCategory(cat) {
       discount: parseFloat(document.getElementById('update-discount').value) || 0,
     };
     try {
-      const res = await fetch(`http://localhost:5000/product/${id}`, {
+      const res = await fetch(`${APP_URL}/product/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,11 @@ from flask import Blueprint, jsonify, render_template
 from backend.app.decorators import role_required 
 from flask_jwt_extended import jwt_required
 
+from dotenv import load_dotenv
+import os
+
+API_URL = os.getenv("API_URL")
+
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
@@ -18,27 +23,27 @@ def contact():
 
 @main_bp.route('/profile')
 def profile():
-    return render_template('profile.html')
+    return render_template('profile.html',api_url=API_URL)
 
 @main_bp.route('/login')
 def login_page():
-    return render_template('login.html')
+    return render_template('login.html',api_url=API_URL)
 
 @main_bp.route('/register')
 def register_page():
-    return render_template('register.html')
+    return render_template('register.html',api_url=API_URL)
 
 @main_bp.route('/onboarding')
 def onboarding():
-    return render_template('onboarding.html')
+    return render_template('onboarding.html',api_url=API_URL)
     
 @main_bp.route('/creator/dashboard')
 def creator_dashboard():
-    return render_template('creator/creator_dashboard.html')
+    return render_template('creator/creator_dashboard.html',api_url=API_URL)
 
 @main_bp.route('/creator/display')
 def creator_display():
-    return render_template('creator/display.html')
+    return render_template('creator/display.html',api_url=API_URL)
 
 @main_bp.route('/admin/dashboard')
 @jwt_required()
@@ -49,11 +54,11 @@ def admin_area():
  
 @main_bp.route('/customer/dashboard')
 def customer_dashboard():
-    return render_template('customer/customer_dashboard.html')
+    return render_template('customer/customer_dashboard.html',api_url=API_URL)
 
 @main_bp.route('/staff/dashboard')
 def staff_dashboard():
-    return render_template('staffdashboard.html')
+    return render_template('staffdashboard.html',api_url=API_URL)
 
 @main_bp.route('/index')
 def index():
@@ -61,8 +66,8 @@ def index():
 
 @main_bp.route('/addproduct')
 def addproduct():
-    return render_template('addproduct.html')
+    return render_template('addproduct.html',api_url=API_URL)
 
 @main_bp.route('/profileview')
 def profileview():
-    return render_template('profile.html')
+    return render_template('profile.html',api_url=API_URL)
