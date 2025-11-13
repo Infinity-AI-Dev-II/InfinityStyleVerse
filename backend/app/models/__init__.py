@@ -1,13 +1,14 @@
+# backend/app/models/__init__.py
+#    Central place to initialize and expose all SQLAlchemy ORM models.
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-# backend/app/models/__init__.py
 
 from .user import User
 from .product import Product
 from .feedback import Feedback
-from .request_log import RequestLog
+from .echo_models import RequestLog
 from .design import Design
 from .product_image import ProductImage
 from .roles import Role

@@ -1,3 +1,10 @@
+# backend/app/services/orchestrator.py
+#   Provides a mock orchestration layer for AI/ML services.
+#   - Generates a unique trace ID for each request.
+#   - Routes requests to different mock services (VisionaryAI, StyleSense).
+#   - Simulates processing latency and returns sample responses.
+#   - Logs execution start, end, and elapsed time for observability.
+#   - Can later be extended to call real HTTP/RPC services instead of mocks
 import logging
 import time
 import uuid

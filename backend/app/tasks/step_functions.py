@@ -1,3 +1,5 @@
+# backend/app/tasks/step_functions.py
+#   Implements a Saga pattern executor for workflow steps.
 """
 Define main step functions and compensation functions here.
 STEP_REGISTRY maps step_id -> {"execute_fn": ..., "compensate_fn": ...}

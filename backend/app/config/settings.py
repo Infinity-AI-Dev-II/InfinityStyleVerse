@@ -1,5 +1,12 @@
 import os
 
+# -------------------------------------------------------------------------
+# settings.py
+#
+# This file defines the global configuration settings for the Flask app.
+
+
+
 class Settings:
     # Flask
     DEBUG = os.getenv("DEBUG", "True").lower() == "true"

@@ -1,4 +1,13 @@
 # backend/app/tasks/executor.py
+#   Implements the asynchronous workflow executor using Celery tasks.
+#   - Maps workflow step types ("http_call", "model_call", "python_fn") to Celery tasks.
+#   - Provides functions to:
+#       • submit individual steps to Celery (`submit_step`)
+#       • start a new workflow run from a DSL definition (`start_run_from_dsl`)
+#       • resume a partially completed run (`resume_run`)
+#       • execute a step synchronously with tracking (`execute_step`)
+#   - Integrates with persistence, metrics/tracing, and compiler modules
+#     to manage workflow state, step execution, and monitoring.
 from backend.celery_app import celery_app
 from backend.app.persistence import create_run, create_run_steps, update_step_start, update_step_finish, get_run_state
 from backend.app.database import db as db_module

@@ -8,6 +8,7 @@ from flasgger import Swagger
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 import logging
 from dotenv import load_dotenv
+from backend.app.middleware.request_id import register_request_id_middleware
 
 # Database and app initialization
 from backend.app.database import db, init_db
@@ -15,7 +16,7 @@ from backend.app.sse import sse_bp
 
 # Import models for reference
 from .models import RequestLog, TokenBlocklist
-from .models.user import User
+from .models.user import User 
 
 # Import settings
 from .config.settings import settings
@@ -165,6 +166,8 @@ def create_app(config_name=None):
         """Seed database with default roles, permissions, and sample users."""
         run_seed()
 
+    # -------------------- Register Request ID Middleware --------------------
+    register_request_id_middleware(app)
     # -------------------- Import and register blueprints --------------------
     from .routes.auth_routes import auth_bp
     from .routes.product_routes import product_bp
@@ -177,8 +180,10 @@ def create_app(config_name=None):
     from .routes.infinitybrain_routes import ib_bp
     from .routes.workflow_routes import bp as workflow_bp
     from .routes.flow import flow_bp
-
+    from .routes.health_routes import health_bp
+    from .routes.echo_routes import echo_bp
     # Register blueprints
+    app.register_blueprint(health_bp)
     app.register_blueprint(sse_bp)
     app.register_blueprint(flow_bp, url_prefix="/flow")
     app.register_blueprint(workflow_bp)
@@ -191,5 +196,5 @@ def create_app(config_name=None):
     app.register_blueprint(feedback_bp)
     app.register_blueprint(recommendation_bp)
     app.register_blueprint(persona_mesh_bp)
-
+    app.register_blueprint(echo_bp)
     return app

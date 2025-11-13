@@ -1,4 +1,7 @@
 # services/compensator.py
+#   Implements compensation logic for failed workflow steps.
+#   In workflow orchestration, "compensation" is the undo or rollback
+#   action that should be executed when a step fails.
 import json
 from ..database import db
 from ..models import Compensation, RunStep, Run

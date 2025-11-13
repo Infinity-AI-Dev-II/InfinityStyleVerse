@@ -1,4 +1,5 @@
 # workflow.py  (project root)
+#   Script to run a workflow defined in a YAML file using Celery tasks.
 import yaml
 from backend.app.tasks import http_call, python_fn
 from celery.exceptions import SoftTimeLimitExceeded

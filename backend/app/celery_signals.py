@@ -1,4 +1,5 @@
 # backend/app/celery_signals.py
+#   Sets up Celery task lifecycle signal handlers for monitoring and metrics.
 import logging
 from celery.signals import task_prerun, task_success, task_failure
 from backend.app.metrics import TASKS_STARTED, TASKS_FAILED

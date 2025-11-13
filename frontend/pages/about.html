@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .hero {
+            background: linear-gradient(to bottom, #2d6363);
+            color: rgb(206, 205, 205);
+            padding: 100px 20px;
+            text-align: center;
+        }
+
+        .section {
+            padding: 60px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .section:nth-child(even) {
+            background: #f4f4f4;
+        }
+
+        .text {
+            flex: 1 1 400px;
+            max-width: 500px;
+            margin: 20px;
+        }
+
+        .image {
+            flex: 1 1 350px;
+            max-width: 400px;
+            margin: 20px;
+        }
+
+        .section img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li::before {
+            content: '✔';
+            color: #00ff99;
+            margin-right: 10px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .btn:hover {
+            background: #333;
+            color: #fff;
+        }
+
+
+        .dark-section {
+            background-color: #1f3f3f;
+            color: #ffffff;
+        }
+
+        .dark-section .btn {
+            background: transparent;
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .dark-section .btn:hover {
+            background: #ffffff;
+            color: #1f3f3f;
+        }
+
+        .dark-section .checklist li::before {
+            color: #00ffcc;
+        }
+
+        .footer {
+            background-color: #f8fdfa;
+            color: #1f3f3f;
+            padding: 40px 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: auto;
+            gap: 30px;
+        }
+
+        .footer-column {
+            flex: 1 1 180px;
+            min-width: 150px;
+        }
+
+        .footer-logo {
+            width: 120px;
+            margin-bottom: 15px;
+        }
+
+        .social-icons a {
+            color: #1f3f3f;
+            margin-right: 10px;
+            font-size: 16px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: #2d6363;
+        }
+
+        .footer-address p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .footer-column h4 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-column ul li a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: #2d6363;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero">
+        <h1>About Us</h1>
+        <p>Discover Our Vision, Purpose, and the Innovation Behind Digital Fashion.</p>
+    </div>
+
+    <div class="section">
+        <div class="text">
+            <h2>Why InfinityStyleVerse?</h2>
+            <p>InfinityStyleVerse is your gateway to a universe of style and innovation. Our platform empowers creators,
+                fashion lovers, and developers to collaborate, learn, and express their digital fashion ideas in a
+                modern and dynamic space.</p>
+
+            <h2>Our Mission</h2>
+            <p>Our mission is to revolutionize the fashion tech space by providing an inclusive, creative, and
+                future-forward platform. We strive to connect users with tools and modules that unlock creativity and
+                real-world application.</p>
+        </div>
+        <div class="image">
+            <img src="https://img.freepik.com/free-photo/couple-winter-cloths-studio_1303-5887.jpg?ga=GA1.1.2048010773.1747198961&semt=ais_hybrid&w=740"
+                alt="Who We Are">
+        </div>
+    </div>
+
+    <div class="section dark-section">
+        <div class="image">
+           <img src="../assets/images/women.avif" alt="What We Do" />
+        </div>
+        <div class="text">
+            <h2>Modules We Offer</h2>
+            <p>At InfinityStyleVerse, we provide a rich suite of modules designed to enhance the digital fashion
+                experience from every angle. One of our standout features is the Virtual Try-On Studio, which allows
+                users to visualize how garments will look on them in real-time using webcam integration or uploaded
+                images.</p>
+            <ul class="checklist">
+                <li>Virtual Try-On Studio</li>
+                <li>AI Style Recommender</li>
+                <li>Trend Analytics Dashboard</li>
+                <li>E-commerce Integration Toolkit</li>
+                <li>Design Collaboration Space</li>
+            </ul>
+            <a class="btn" href="#">Get Started</a>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+                <br />
+                <address class="footer-address">
+                    <p>+123 456 7897</p>
+                    <p>Havelock Road</p>
+                    <p>Colombo 05</p>
+                </address>
+            </div>
+            <div class="footer-column">
+                <h4>My Account</h4>
+                <ul>
+                    <li><a href="#">Sign In</a></li>
+                    <li><a href="#">Register</a></li>
+                    <li><a href="#">Order status</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Help</h4>
+                <ul>
+                    <li><a href="#">Shipping</a></li>
+                    <li><a href="#">Returns</a></li>
+                    <li><a href="#">Sizing</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4>Legal Stuff</h4>
+                <ul>
+                    <li><a href="#">Shipping & Delivery</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Privacy & Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 InfinityStyleVerse. All Rights Reserved</p>
+        </div>
+    </footer>
+</body>
+
+</html>

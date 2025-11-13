@@ -1,4 +1,10 @@
 # services/signals.py
+#   Handles workflow signals to resume steps waiting for external events.
+#   - Finds RunStep(s) in "waiting_for_signal" status for a given run.
+#   - Matches the step explicitly expecting the signal, or defaults to the first waiting step.
+#   - Updates the step's payload with the signal data and sets its status to "pending"
+#     so the workflow executor can continue processing.
+#   - Provides logging and error handling to trace signal handling.
 import json
 from ..database import db
 from ..models import Run, RunStep

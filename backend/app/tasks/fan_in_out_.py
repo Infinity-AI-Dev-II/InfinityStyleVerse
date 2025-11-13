@@ -1,4 +1,5 @@
 # backend/app/tasks/fan_in_out.py
+
 from backend.celery_app import celery_app
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging

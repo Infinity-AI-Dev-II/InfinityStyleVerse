@@ -1,5 +1,5 @@
 # backend/app/compiler.py
-
+#   Provides minimal workflow compilation and step lookup utilities.
 def compile_workflow_from_yaml(yaml_text: str) -> dict:
     """
     Minimal stub: parse YAML and return DAG nodes.

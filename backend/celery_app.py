@@ -1,4 +1,5 @@
 # backend/celery_app.py
+#Sets up and configures the Celery application for the workflow engine
 from celery import Celery
 from kombu import Queue
 from backend.app.config.settings import settings

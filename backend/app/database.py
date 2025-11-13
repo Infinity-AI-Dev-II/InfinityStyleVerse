@@ -1,4 +1,6 @@
 # backend/app/database.py
+#   Centralizes database configuration and session management for both
+#   Flask web app and standalone scripts/Celery tasks.
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from .config.settings import settings

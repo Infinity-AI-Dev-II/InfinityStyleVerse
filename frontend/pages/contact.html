@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #2d6363;
+    }
+
+    .hero {
+      background: url('../assets/images/cover.png') no-repeat center center/cover;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+      text-shadow: 1px 1px 4px #2d6363;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: auto;
+      gap: 40px;
+    }
+
+    .form-container {
+      flex: 1 1 60%;
+      max-width: 60%;
+      padding-right: 20px;
+    }
+
+    .info-container {
+      flex: 1 1 35%;
+      background: #f0f8ff;
+      padding: 30px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+
+    button {
+      background-color: #2d6363;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .info-item i {
+      font-size: 18px;
+      margin-top: 3px;
+      color: #2d6363;
+      min-width: 22px;
+    }
+
+    .info-container p {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .form-container, .info-container {
+        max-width: 100%;
+        padding-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">Contact</div>
+
+<div class="container">
+  <div class="form-container">
+    <h2>Have a question?</h2>
+    <p>Please do not fill out this form for any purpose other than partnerships. We are not looking for any services at this time. We cannot buy leads or calls.</p>
+    <form>
+      <label for="fname">Name</label>
+      <input type="text" id="fname" name="firstname" placeholder="Enter your Name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Enter your Email" required>
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="4" placeholder="Write your message here" required></textarea>
+
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <div class="info-container">
+    <h2>Get in touch</h2>
+    <p>We love to hear from you. Our friendly team is always here to chat.</p>
+    
+    <div class="info-item">
+      <i class="fas fa-map-marker-alt"></i>
+      <span>Havelock Road, Colombo 05</span>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-phone"></i>
+      <span>+123 456 7890</span>
+    </div>
+    <div class="info-item">
+      <i class="fas fa-envelope"></i>
+      <span>infinitystyleverse@gmail.com</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
