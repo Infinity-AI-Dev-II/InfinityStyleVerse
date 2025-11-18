@@ -16,6 +16,7 @@ from backend.app.tasks.http_call import http_call_task
 from backend.app.tasks.model_call import model_call_task
 from backend.app.tasks.python_fn import python_fn
 from backend.app.metrics_tracing_step import track_step, track_retry, track_compensation
+from tasks.anomaly_detector_functions import detect_anomalies
 
 STEP_TASK_MAP = {
     "http_call": http_call_task,
@@ -33,10 +34,10 @@ def submit_step(step_def: dict, run_id: int):
 def start_run_from_dsl(dsl_text: str, workflow_id: int, version: str, input_json: str | None = None):
     db = db_module.session()
     try:
-        dag = compiler.compile_workflow_from_yaml(dsl_text)
+        dag = compiler.compile_workflow_from_yaml(dsl_text)#from compiler.py
         step_defs = dag["nodes"]
         run = create_run(db, workflow_id, version, inputs_json=input_json)
-        create_run_steps(db, run.id, step_defs)
+        create_run_steps(db, run.id, step_defs)#from persistance.py
         # enqueue entry steps (no incoming edges)
         entry_nodes = [n for n in step_defs if not n.get("incoming")]
         for n in entry_nodes:
@@ -73,8 +74,10 @@ def execute_step(step, workflow_name, run_id):
     try:
         result = track_step(workflow_name, run_id, step_id, step_logic)
         status = "completed"
+        fallbackStat = False
     except Exception:
         status = "failed"
+        fallbackStat = True
 
     # Create RunStep entry
     from backend.app.models import RunStep
@@ -86,5 +89,30 @@ def execute_step(step, workflow_name, run_id):
         status="completed"
         )
     db.session.add(run_step)
-    db.session.commit()   
+    db.session.commit()
+# Compute duration
+    if step.started_at and step.ended_at:
+        duration = step.ended_at - step.started_at
+        duration_ms = int(duration.total_seconds() * 1000)  # milliseconds
+    else:
+        duration_ms = None
+        # task_payload = {
+        #         "id": None,                    
+        #         "run_id": run_id,                
+        #         "step_id": step.id,               
+        #         "type": step.type,    
+        #         "status": step.status,           
+        #         "attempt": step.attempt,                 
+        #         "started_at": step.started_at,            
+        #         "ended_at": step.ended_at,              
+        #         "input_json": step.input_json,  
+        #         "output_json": step.output_json,           
+        #         "error_json": step.error_json,            
+        #         "duration_ms": duration_ms,           
+        #         "fallback_triggered": fallbackStat,   
+        #         "worker_heartbeat": '2025-09-18 05:29:18.881673+05:30', #FIXME: For now     
+        #         "error_code": 'S000', #FIXME: For now           
+        #         }   
+        # #flowGate OS
+        # detect_anomalies.delay(task_payload)
     return result

@@ -1,3 +1,5 @@
+#this is loaded by the docker file and calls the create app function.
+#initializes the backend through docker
 import os
 from flask import Flask, Response, request, send_from_directory, jsonify
 from flask_cors import CORS

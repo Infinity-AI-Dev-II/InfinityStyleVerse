@@ -3,7 +3,7 @@ import os
 # -------------------------------------------------------------------------
 # settings.py
 #
-# This file defines the global configuration settings for the Flask app.
+# This file defines the global configuration settings for the Flask app (Values).
 
 
 

@@ -6,8 +6,9 @@ from backend.app.config.settings import settings
 from backend.app.logging_conf import configure_logging
 
 # configure logging early so signals and tasks use structured JSON log
+#Calls for in the task creations 
 configure_logging()
-
+#create the celery application
 celery_app = Celery(
     "workflow_engine",
     broker=settings.CELERY_BROKER_URL,
@@ -28,16 +29,18 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
 )
-
+#specific custom queues
 celery_app.conf.task_queues = (
     Queue("default"),
     Queue("io"),
     Queue("cpu"),
+    Queue(name='flowGate_queue')
 )
-
+#send the tasks to the relavent queues
 celery_app.conf.task_routes = {
     "backend.app.tasks.http_call.http_call": {"queue": "io"},
     "backend.app.tasks.python_fn.python_fn": {"queue": "cpu"},
+    "backend.app.tasks.anomaly_detector_functions.detect_anomalies": {"queue": "flowGate_queue"},
 }
 
 # register signals so they're active in worker process
