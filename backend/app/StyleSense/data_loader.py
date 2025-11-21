@@ -1,16 +1,18 @@
+#This code is a data loading and cleaning skeleton for the StyleSense
 import pandas as pd
 from typing import Literal
 
 DATA_PATH = 'backend/app/StyleSense/data/stylesense_seed_data.csv'
 
 def load_stylesense_data(
+    #Parameter module must be one of "catalog_vision", "outfit_scorer", or "bodymorph".
     module: Literal["catalog_vision", "outfit_scorer", "bodymorph"]
 ) -> pd.DataFrame:
     try:
         df = pd.read_csv(DATA_PATH)
     except FileNotFoundError:
         raise FileNotFoundError(f"FATAL: Data file not found at {DATA_PATH}.")
-
+    #Depending on module, it filters only the relevant columns:
     if module == "catalog_vision":
         return df[['sku', 'image_uri', 'category', 'color', 'pattern']]
 
@@ -22,7 +24,9 @@ def load_stylesense_data(
     
     else:
         raise ValueError(f"Unknown module: {module}")
-
+# Cleans the DataFrame:
+# Drops rows where image_uri is missing (NaN).
+# If the DataFrame has aesthetic_score_label, it keeps only rows where the value is between 0 and 1.
 def validate_and_clean(df: pd.DataFrame) -> pd.DataFrame:
     df.dropna(subset=['image_uri'], inplace=True)
     if 'aesthetic_score_label' in df.columns:

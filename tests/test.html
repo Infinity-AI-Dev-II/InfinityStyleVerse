@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>BodyMorph Analysis</title>
+
+    <!-- Tailwind + Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom global styles -->
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: radial-gradient(circle at top left, #071a2e, #010409);
+        color: #d6d9e0;
+        min-height: 100vh;
+      }
+
+      .card {
+        background: linear-gradient(145deg, #0b1321, #050b16);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.7),
+          inset 0 0 10px rgba(255, 255, 255, 0.03);
+      }
+
+      .spinner {
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        border-top: 3px solid white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #imagePreview {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(120, 160, 255, 0.3);
+        transition: border-color 0.3s;
+      }
+
+      #imagePreview:hover {
+        border-color: #4f7cff;
+      }
+
+      input[type="file"]::file-selector-button {
+        background: rgba(64, 140, 255, 0.15);
+        color: #b8ccff;
+        border: 1px solid rgba(80, 150, 255, 0.3);
+        border-radius: 9999px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      input[type="file"]::file-selector-button:hover {
+        background: rgba(64, 140, 255, 0.3);
+      }
+
+      select {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(100, 150, 255, 0.3);
+        color: #c9d2f5;
+      }
+
+      select:focus {
+        outline: none;
+        border-color: #4f7cff;
+        box-shadow: 0 0 10px rgba(79, 124, 255, 0.6);
+      }
+
+      footer p {
+        color: #9aa5cc;
+      }
+    </style>
+  </head>
+
+  <body
+    class="flex flex-col items-center justify-start min-h-screen p-6 md:p-10 bg-[#060b18] text-white"
+  >
+    <!-- Brand header -->
+    <div class="w-full flex items-start justify-start mb-8 md:mb-10">
+      <h1
+        class="text-2xl md:text-3xl font-bold tracking-wide bg-gradient-to-r from-[#7ed4ff] via-[#7a8cff] to-[#a36bff] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(120,150,255,0.6)]"
+      >
+        StyleSense
+      </h1>
+    </div>
+
+    <!-- Title + helper text -->
+    <div class="flex flex-col items-center text-center mb-10">
+      <h2
+        class="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-[#9db8ff] via-[#7a8cff] to-[#a36bff] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(140,160,255,0.4)]"
+      >
+        BodyMorph <span class="text-[#cdd7ff]">Analysis</span>
+      </h2>
+      <p class="text-sm text-[#98a2c3] max-w-md">
+        Upload a high quality, front view photograph for detailed body profile
+        analysis.
+      </p>
+    </div>
+
+    <!-- Main analysis card -->
+    <div
+      class="max-w-xl w-full card rounded-3xl p-8 md:p-10 bg-[#0f1a2c]/60 border border-[#1e2f52] shadow-lg backdrop-blur-md"
+    >
+      <!-- File input -->
+      <div class="mb-6">
+        <label
+          for="imageUpload"
+          class="block text-sm font-semibold text-[#c9d2f5] mb-2"
+        >
+          Select photo file
+        </label>
+        <input
+          type="file"
+          id="imageUpload"
+          accept=".jpg,.jpeg,.png"
+          class="block w-full text-sm text-[#aebef2] bg-transparent border border-[#1e2f52] rounded-lg p-3 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#4f7cff]"
+        />
+        <p
+          id="fileError"
+          class="mt-2 text-sm text-red-400 font-medium hidden"
+        ></p>
+      </div>
+
+      <!-- Image preview -->
+      <div class="mb-8">
+        <p class="block text-sm font-semibold text-[#c9d2f5] mb-2">
+          Image Preview
+        </p>
+        <div
+          id="imagePreview"
+          class="rounded-2xl flex items-center justify-center overflow-hidden transition-all duration-300 min-h-[250px] bg-[#101b2d] border border-[#1e2f52]"
+        >
+          <span
+            id="previewPlaceholder"
+            class="text-[#6070a3] text-sm p-8"
+          >
+            Preview will appear here. (Max 5MB)
+          </span>
+          <img
+            id="previewImage"
+            src="#"
+            alt="Image Preview"
+            class="hidden w-full h-full object-contain rounded-lg"
+          />
+        </div>
+      </div>
+
+      <!-- Gender + analyze button -->
+      <div
+        class="pt-4 flex flex-col md:flex-row md:items-end justify-between gap-4"
+      >
+        <div class="flex-grow">
+          <label
+            for="genderHint"
+            class="block text-sm font-medium text-[#c9d2f5] mb-2"
+          >
+            Gender Hint (Improves Accuracy)
+          </label>
+          <select
+            id="genderHint"
+            class="mt-1 block w-full px-4 py-2.5 rounded-lg bg-[#121e33] border border-[#1e2f52] text-[#cfd8ff]"
+          >
+            <option value="F">Female</option>
+            <option value="M">Male</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          id="analyzeButton"
+          class="px-8 py-3 rounded-full flex items-center justify-center bg-gradient-to-r from-[#4fd1ff] via-[#6d77ff] to-[#a36bff] text-white font-semibold shadow-[0_0_15px_rgba(100,150,255,0.6)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span id="buttonText">Analyze photo</span>
+          <div id="buttonSpinner" class="spinner ml-3 hidden"></div>
+        </button>
+      </div>
+
+      <!-- Status message -->
+      <div
+        id="statusMessage"
+        class="mt-6 text-xs text-[#8da5e3] border border-[#1e2f52] bg-[#0f1a2c] rounded-xl p-3 flex items-center gap-2"
+      >
+        <i data-lucide="info" class="w-4 h-4 text-[#6a8cff]"></i>
+        <span>Please select your photo to start the BodyMorph analysis.</span>
+      </div>
+    </div>
+
+    <!-- Structured analysis results (mocked) -->
+    <div
+      id="structuredResult"
+      class="max-w-xl w-full mt-8 rounded-3xl border border-[#1e2f52] bg-[#0f1a2c]/60 shadow-lg backdrop-blur-md p-6 hidden"
+    >
+      <h3 class="text-sm font-semibold text-[#c9d2f5] mb-4">
+        BodyMorph Insights
+      </h3>
+      <div id="resultDetails" class="space-y-2 text-xs"></div>
+    </div>
+
+    <!-- Raw API JSON (mocked) -->
+    <div
+      id="apiResponse"
+      class="max-w-xl w-full mt-6 rounded-3xl border border-[#1e2f52] bg-[#050b16] shadow-lg backdrop-blur-md p-4 hidden"
+    >
+      <h3 class="text-xs font-semibold text-[#c9d2f5] mb-3">
+        Raw API Response
+      </h3>
+      <pre
+        class="text-[10px] leading-relaxed text-[#aebef2] bg-[#020712] rounded-xl p-3 overflow-x-auto"
+      ></pre>
+    </div>
+
+    <!-- Simple footer with session/user id from Firebase (when available) -->
+    <footer class="mt-10 text-[11px] text-center">
+      <p>
+        Session ID:
+        <span
+          id="userIdDisplay"
+          class="font-mono text-[#9aa5cc] break-all opacity-80"
+          >—</span
+        >
+      </p>
+    </footer>
+
+    <!-- Firebase init (kept minimal, guarded by config availability) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        signInWithCustomToken,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      const appId = typeof __app_id !== "undefined" ? __app_id : "default-app-id";
+      const firebaseConfig =
+        typeof _firebase_config !== "undefined"
+          ? JSON.parse(_firebase_config)
+          : null;
+      const initialAuthToken =
+        typeof __initial_auth_token !== "undefined"
+          ? __initial_auth_token
+          : null;
+
+      let auth, db, app;
+      if (firebaseConfig) {
+        try {
+          app = initializeApp(firebaseConfig);
+          db = getFirestore(app);
+          auth = getAuth(app);
+
+          async function authenticate() {
+            if (initialAuthToken) {
+              await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+              await signInAnonymously(auth);
+            }
+            const userId = auth.currentUser?.uid || crypto.randomUUID();
+            const userIdDisplay = document.getElementById("userIdDisplay");
+            if (userIdDisplay) {
+              userIdDisplay.textContent = userId;
+            }
+          }
+
+          authenticate();
+        } catch (error) {
+          console.error("Firebase Init Error:", error);
+        }
+      }
+    </script>
+
+    <!-- App logic + mock API layer -->
+    <script>
+      lucide.createIcons();
+
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
+      const MOCK_SIGNED_URL_API = "/api/get_signed_url";
+      const MOCK_BODY_PROFILE_API =
+        "https://api.stylesense.ai/stylesense/body_profile";
+
+      const fileInput = document.getElementById("imageUpload");
+      const fileError = document.getElementById("fileError");
+      const previewImage = document.getElementById("previewImage");
+      const previewPlaceholder = document.getElementById("previewPlaceholder");
+      const analyzeButton = document.getElementById("analyzeButton");
+      const buttonText = document.getElementById("buttonText");
+      const buttonSpinner = document.getElementById("buttonSpinner");
+      const statusMessage = document.getElementById("statusMessage");
+      const genderHint = document.getElementById("genderHint");
+      const apiResponseContainer = document.getElementById("apiResponse");
+      const apiResponsePre = document.querySelector("#apiResponse pre");
+      const structuredResultContainer =
+        document.getElementById("structuredResult");
+      const resultDetails = document.getElementById("resultDetails");
+
+      let selectedFile = null;
+
+      function generateUUID() {
+        return crypto.randomUUID();
+      }
+
+      // Mocked fetch with exponential backoff + StyleSense endpoints
+      async function exponentialBackoffFetch(url, options, retries = 3) {
+        for (let i = 0; i < retries; i++) {
+          try {
+            // Mock signed URL endpoint
+            if (url.includes(MOCK_SIGNED_URL_API)) {
+              return {
+                ok: true,
+                json: async () => ({
+                  signed_url: `https://mock-s3.com/uploads/${generateUUID()}.jpg`,
+                  final_image_uri: `s3://mock-bucket/${generateUUID()}.jpg`,
+                }),
+              };
+            }
+
+            // Mock BodyMorph profile endpoint
+            if (url.includes(MOCK_BODY_PROFILE_API)) {
+              const body = JSON.parse(options.body);
+              const gender = body.hints.gender;
+              const bodyType =
+                gender === "F"
+                  ? ["Hourglass", "Rectangle", "Pear", "Inverted Triangle"][
+                      Math.floor(Math.random() * 4)
+                    ]
+                  : ["Rectangle", "Oval", "Triangle", "Inverted Triangle"][
+                      Math.floor(Math.random() * 4)
+                    ];
+
+              return {
+                ok: true,
+                json: async () => ({
+                  body_type: bodyType,
+                  confidence: (0.8 + Math.random() * 0.2).toFixed(2),
+                  proportions: {
+                    waist_to_hip_ratio: (0.7 + Math.random() * 0.15).toFixed(
+                      3
+                    ),
+                    shoulder_to_hip_ratio: (
+                      0.95 +
+                      Math.random() * 0.1
+                    ).toFixed(3),
+                  },
+                  quality_flags: ["single_subject", "front_view_detected"],
+                  request_id: generateUUID(),
+                }),
+              };
+            }
+
+            // Mock S3 upload
+            if (url.includes("mock-s3.com")) {
+              console.log(`[MOCK S3 UPLOAD] PUT to ${url}`);
+              return { ok: true };
+            }
+          } catch (e) {
+            if (i === retries - 1) throw e;
+            await new Promise((r) => setTimeout(r, Math.pow(2, i) * 1000));
+          }
+        }
+      }
+
+      // Status banner helper
+      function updateStatus(message, type = "info") {
+        const colors = {
+          info: "border-[#1e2f52] text-[#8da5e3] bg-[#0f1a2c]",
+          success: "border-green-500 text-green-300 bg-green-900/20",
+          error: "border-red-500 text-red-300 bg-red-900/20",
+        };
+
+        const iconName =
+          type === "error"
+            ? "alert-circle"
+            : type === "success"
+            ? "check-circle"
+            : "info";
+
+        statusMessage.className = `mt-6 text-xs rounded-xl p-3 flex items-center gap-2 border ${colors[type]}`;
+        statusMessage.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4"></i><span>${message}</span>`;
+        lucide.createIcons();
+      }
+
+      // Button loading state
+      function setLoading(isLoading) {
+        analyzeButton.disabled = isLoading || !selectedFile;
+        buttonSpinner.classList.toggle("hidden", !isLoading);
+        buttonText.textContent = isLoading ? "Analyzing..." : "Analyze photo";
+      }
+
+      // File validation
+      function validateFile(file) {
+        fileError.classList.add("hidden");
+        let valid = true;
+
+        if (!["image/jpeg", "image/png"].includes(file.type)) {
+          fileError.textContent = "Invalid file type.";
+          fileError.classList.remove("hidden");
+          valid = false;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          fileError.textContent = "File exceeds 5MB.";
+          fileError.classList.remove("hidden");
+          valid = false;
+        }
+
+        return valid;
+      }
+
+      // Handle file selection + preview
+      fileInput.addEventListener("change", function () {
+        if (this.files && this.files[0]) {
+          const file = this.files[0];
+
+          if (validateFile(file)) {
+            selectedFile = file;
+            analyzeButton.disabled = false;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              previewImage.src = e.target.result;
+              previewImage.classList.remove("hidden");
+              previewPlaceholder.classList.add("hidden");
+            };
+            reader.readAsDataURL(file);
+
+            updateStatus("File ready. Click Analyze to start.");
+          } else {
+            selectedFile = null;
+            analyzeButton.disabled = true;
+          }
+        }
+      });
+
+      // Analyze click handler
+      analyzeButton.addEventListener("click", async () => {
+        if (!selectedFile) {
+          updateStatus("No file selected.", "error");
+          return;
+        }
+
+        setLoading(true);
+
+        try {
+          // 1) Get signed URL (mocked)
+          const signedRes = await exponentialBackoffFetch(MOCK_SIGNED_URL_API, {
+            method: "POST",
+          });
+          const signedData = await signedRes.json();
+
+          // 2) Upload image to mock S3
+          await exponentialBackoffFetch(signedData.signed_url, {
+            method: "PUT",
+            body: selectedFile,
+          });
+
+          // 3) Call BodyMorph API (mocked)
+          const bodyPayload = {
+            image_uri: signedData.final_image_uri,
+            hints: { gender: genderHint.value },
+            camera: { fov_deg: 60, distance_m: 2.0 },
+          };
+
+          const apiRes = await exponentialBackoffFetch(MOCK_BODY_PROFILE_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(bodyPayload),
+          });
+
+          const data = await apiRes.json();
+
+          // Update status + views
+          updateStatus("Analysis completed successfully!", "success");
+
+          if (apiResponsePre && apiResponseContainer) {
+            apiResponsePre.textContent = JSON.stringify(data, null, 2);
+            apiResponseContainer.classList.remove("hidden");
+          }
+
+          if (structuredResultContainer && resultDetails) {
+            structuredResultContainer.classList.remove("hidden");
+            resultDetails.innerHTML = `
+              <div class="flex justify-between text-[#c9d2f5]"><span>Body Type:</span><strong>${data.body_type}</strong></div>
+              <div class="flex justify-between text-[#c9d2f5]"><span>Confidence:</span><strong>${(
+                data.confidence * 100
+              ).toFixed(1)}%</strong></div>
+              <div class="flex justify-between text-[#c9d2f5]"><span>Waist-to-Hip Ratio:</span><strong>${
+                data.proportions.waist_to_hip_ratio
+              }</strong></div>
+              <div class="flex justify-between text-[#c9d2f5]"><span>Shoulder-to-Hip Ratio:</span><strong>${
+                data.proportions.shoulder_to_hip_ratio
+              }</strong></div>
+              <div class="flex justify-between text-[#c9d2f5]"><span>Posture:</span><strong>${
+                data.posture?.tilt || "N/A"
+              }, ${data.posture?.stance || "N/A"}</strong></div>
+              <div class="flex justify-between text-[#c9d2f5]"><span>Quality Flags:</span><strong>${
+                data.quality_flags?.join(", ") || "None"
+              }</strong></div>
+            `;
+          }
+        } catch (e) {
+          updateStatus(
+            "Analysis failed or invalid response. Please recheck the photo and try again.",
+            "error"
+          );
+          console.error(e);
+        } finally {
+          setLoading(false);
+        }
+      });
+    </script>
+  </body>
+</html>
