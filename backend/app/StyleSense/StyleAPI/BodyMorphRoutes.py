@@ -11,17 +11,17 @@ from backend.app.AWS_configuration import AWSConfig
 from backend.app.services.idempotency_service import compute_request_hash, read_idempotency, write_idempotency
 
 from backend.app.tasks.GetImageBySignedUrl import load_image_from_signed_url
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-from botocore.client import Config
+# from botocore.exceptions import NoCredentialsError, PartialCredentialsError
+# from botocore.client import Config
 import uuid
 import os
+
+from copy import validate_request_size
 
 bodyMorph_bp = Blueprint('bodyMorph_bp', __name__, url_prefix="/stylesense")
 
 # Maximum file size (for frontend validation reference)
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
-
-#TODO: Run the build and edit requirements.txt
 
 # Initialize Boto3 S3 client
 s3_client = AWSConfig.get_s3_client()
@@ -36,14 +36,16 @@ def generate_presigned_url(object_key, expiration=3600):
             Params={'Bucket': S3_BUCKET_NAME, 'Key': object_key},
             ExpiresIn=expiration
         )
-    except (NoCredentialsError, PartialCredentialsError) as e:
-            return f"Credentials error: {str(e)}"
+    # except (NoCredentialsError, PartialCredentialsError) as e:
+    #         return f"Credentials error: {str(e)}"
     except Exception as e:
         print(f"Error generating pre-signed URL: {e}")
         return None
     
-#create a presigned url to store the image in the S3
+# create a presigned url to store the image in the S3
 @bodyMorph_bp.route('/generate-presigned-url', methods=['GET'])
+@jwt_required()
+@validate_request_size(request,max_json_kb=500)
 def generate_presigned_url_api():
     """Generate a presigned URL for S3 file upload."""
     try:
@@ -82,6 +84,7 @@ def generate_presigned_url_api():
 
 @bodyMorph_bp.route("/body_profile", methods=["POST"])
 @jwt_required() 
+@validate_request_size(request,max_json_kb=500)
 def body_profile():
     """
     Accepts JSON payload with image_uri, hints, and camera info.
@@ -91,8 +94,8 @@ def body_profile():
     idem_key = request.headers.get("Idempotency-Key")
     if not idem_key:
         return jsonify({"Error:","Idempotency-Key is empty"})
-    if 'image' not in request.files:
-        return jsonify({'error': 'No image part in the request'}), 400
+    # if 'image' not in request.files:
+    #     return jsonify({'error': 'No image part in the request'}), 400
     if idem_key:
         status = read_idempotency(idem_key)
         if status:
