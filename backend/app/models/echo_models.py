@@ -5,7 +5,7 @@ from ..database import db
 class RequestLog(db.Model):
     __tablename__ = "request_log"
     id = db.Column(db.Integer, primary_key=True)
-    request_id = db.Column(db.String(64), nullable=False)
+    request_id = db.Column(db.String(64), nullable=True)
     user_id = db.Column(db.Integer, nullable=True)
     endpoint = db.Column(db.String(255), nullable=False)
     method = db.Column(db.String(10), nullable=False)

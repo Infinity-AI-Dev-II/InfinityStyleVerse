@@ -80,7 +80,8 @@ def create_app(config_name=None):
 
         log = RequestLog(
             user_id=user_id,
-            endpoint=request.path
+            endpoint=request.path,
+             method=request.method
         )
         db.session.add(log)
         db.session.commit()
@@ -184,6 +185,7 @@ def create_app(config_name=None):
     from .routes.flow import flow_bp
     from .routes.health_routes import health_bp
     from .routes.echo_routes import echo_bp
+    from .StyleSense.StyleAPI.BodyMorphRoutes import bodyMorph_bp
     # Register blueprints
     app.register_blueprint(health_bp)
     app.register_blueprint(sse_bp)
@@ -199,4 +201,5 @@ def create_app(config_name=None):
     app.register_blueprint(recommendation_bp)
     app.register_blueprint(persona_mesh_bp)
     app.register_blueprint(echo_bp)
+    app.register_blueprint(bodyMorph_bp)
     return app

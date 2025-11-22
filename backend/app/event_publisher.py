@@ -1,3 +1,7 @@
+#This code provides a real-time event broadcasting system using 
+# Server-Sent Events and keeps an external service (TaskPulseOS) notified about 
+# workflow updates via API calls. It’s typically part of a monitoring dashboard or 
+# workflow management system where users can watch live process updates in their browser.
 import json
 import requests
 from datetime import datetime

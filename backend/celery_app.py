@@ -34,13 +34,15 @@ celery_app.conf.task_queues = (
     Queue("default"),
     Queue("io"),
     Queue("cpu"),
-    Queue(name='flowGate_queue')
+    Queue(name='flowGate_queue'),
+    Queue(name='image_queue')
 )
 #send the tasks to the relavent queues
 celery_app.conf.task_routes = {
     "backend.app.tasks.http_call.http_call": {"queue": "io"},
     "backend.app.tasks.python_fn.python_fn": {"queue": "cpu"},
     "backend.app.tasks.anomaly_detector_functions.detect_anomalies": {"queue": "flowGate_queue"},
+    "backend.app.tasks.GetImageBySignedUrl.load_image_from_signed_url": {"queue": "image_queue"}
 }
 
 # register signals so they're active in worker process

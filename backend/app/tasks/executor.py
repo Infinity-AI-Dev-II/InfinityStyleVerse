@@ -96,23 +96,4 @@ def execute_step(step, workflow_name, run_id):
         duration_ms = int(duration.total_seconds() * 1000)  # milliseconds
     else:
         duration_ms = None
-        # task_payload = {
-        #         "id": None,                    
-        #         "run_id": run_id,                
-        #         "step_id": step.id,               
-        #         "type": step.type,    
-        #         "status": step.status,           
-        #         "attempt": step.attempt,                 
-        #         "started_at": step.started_at,            
-        #         "ended_at": step.ended_at,              
-        #         "input_json": step.input_json,  
-        #         "output_json": step.output_json,           
-        #         "error_json": step.error_json,            
-        #         "duration_ms": duration_ms,           
-        #         "fallback_triggered": fallbackStat,   
-        #         "worker_heartbeat": '2025-09-18 05:29:18.881673+05:30', #FIXME: For now     
-        #         "error_code": 'S000', #FIXME: For now           
-        #         }   
-        # #flowGate OS
-        # detect_anomalies.delay(task_payload)
     return result
