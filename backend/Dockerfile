@@ -21,6 +21,14 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
 RUN python -m pip install --upgrade pip
 RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install Flask-Caching
+
+# upgrade pip once and install all deps (incl. boto3) from requirements.txt
+# RUN python -m pip install --upgrade pip \
+#     && pip install --no-cache-dir -r /app/requirements.txt
+
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     pip install -r requirements.txt
 
 # copy application code
 COPY . /app

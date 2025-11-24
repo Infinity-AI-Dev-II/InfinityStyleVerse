@@ -22,7 +22,10 @@ from .models.user import User
 
 # Import settings
 from .config.settings import settings
-
+import os
+#TODO: Build
+from flask_caching import Cache
+import redis
 # Load environment variables
 load_dotenv()
 
@@ -44,7 +47,16 @@ def create_app(config_name=None):
         static_folder=static_folder
     )
     
-   
+    #configure Redis to use caching
+    app.config['CACHE_TYPE'] = 'redis'
+    app.config['CACHE_REDIS_HOST'] = os.getenv('REDIS_HOST')
+    app.config['CACHE_REDIS_PORT'] = os.getenv('REDIS_PORT')
+    app.config['CACHE_REDIS_DB'] = 0
+    cache = Cache(app=app)
+    cache.init_app(app)
+    # Initialize Redis client
+    redis_client = redis.Redis(host=app.config['CACHE_REDIS_HOST'], port=app.config['CACHE_REDIS_PORT'], db=app.config['CACHE_REDIS_DB'])
+    app.config["REDIS_CLIENT"] = redis_client
     # Load configuration
     app.config.from_object(settings)
 
