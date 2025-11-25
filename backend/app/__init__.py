@@ -33,20 +33,22 @@ load_dotenv()
 migrate = Migrate()
 login_manager = LoginManager()
 
-
 def create_app(config_name=None):
     # Base directories
     base_dir = os.path.dirname(os.path.abspath(__file__))
     template_folder = os.path.join(base_dir, '..', '..', 'Frontend', 'templates')
     static_folder = os.path.join(base_dir, '..', '..', 'Frontend', 'assets')
-
     # Create Flask app
     app = Flask(
         __name__,
         template_folder=template_folder,
         static_folder=static_folder
     )
-    
+    #redirect flask logger to guicorn server (to debug in docker)
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    if gunicorn_logger.handlers:
+       app.logger.handlers = gunicorn_logger.handlers
+       app.logger.setLevel(gunicorn_logger.level)
     #configure Redis to use caching
     app.config['CACHE_TYPE'] = 'redis'
     app.config['CACHE_REDIS_HOST'] = os.getenv('REDIS_HOST')

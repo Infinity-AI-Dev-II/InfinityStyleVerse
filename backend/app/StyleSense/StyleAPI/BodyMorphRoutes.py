@@ -1,6 +1,6 @@
 import io
 import json
-from flask import Blueprint, Config, request, jsonify,abort
+from flask import Blueprint, Config, app, request, jsonify,abort
 import uuid
 import random
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -23,6 +23,8 @@ from backend.app.requestSizeValidator import validate_request_size
 from backend.app.services.redisKeyGenerate import generate_image_cache_key
 import redis
 import hashlib
+import logging
+from flask import current_app
 bodyMorph_bp = Blueprint('bodyMorph_bp', __name__, url_prefix="/stylesense")
 
 # Maximum file size (for frontend validation reference)
@@ -45,6 +47,11 @@ def generate_presigned_url(object_key, expiration=3600):
     except Exception as e:
         print(f"Error generating pre-signed URL: {e}")
         return None
+    
+@bodyMorph_bp.route('/testOut', methods=['GET'])
+def testOut():
+    current_app.logger.info("Hello! This will go to Gunicorn logs")
+    return jsonify({"message": "testOut"}), 200
     
 # create a presigned url to store the image in the S3
 @bodyMorph_bp.route('/generate-presigned-url', methods=['GET'])
@@ -94,6 +101,7 @@ def body_profile():
     Accepts JSON payload with image_uri, hints, and camera info.
     Returns mocked body analysis results.
     """
+    current_app.logger.info("Hello! This will go to Gunicorn logs")
     #FIXME: TEST ONLY
     if 'image' not in request.files:
         return jsonify({'error': 'No image part in request'}), 400
@@ -141,7 +149,7 @@ def body_profile():
     imgBytes = file_like.read()#img bytes from the cloud file
     #cache key generation
     key = generate_image_cache_key(image_bytes=imgBytes,hints=hints)
-    
+    current_app.logger.info("KEY:" + key)
     #chack cache
     cacheFound = redis_client.get(key)
     if cacheFound:
@@ -170,7 +178,7 @@ def body_profile():
     #create the ideopitency row
     write_idempotency(idem_key, compute_request_hash(request_hash), response)
     #cache the output with the key
-    print("Server starting...", flush=True)
+    
     redis_client.set(key, json.dumps(response), ex=3600)
     return jsonify(response)
 
