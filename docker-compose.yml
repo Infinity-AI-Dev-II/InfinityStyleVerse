@@ -51,6 +51,38 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  #for the kafka consumer 
+  #FIXME: fix later   
+  kafka-consumer:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.consumer
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_CONSUMER_GROUP_ID: skillio-consumer-group
+      KAFKA_SECURITY_PROTOCOL: PLAINTEXT
+      # Run topics
+      KAFKA_TOPIC_RUN_STARTED: run.started
+      KAFKA_TOPIC_RUN_UPDATED: run.updated
+      KAFKA_TOPIC_RUN_SUCCEEDED: run.succeeded
+      KAFKA_TOPIC_RUN_FAILED: run.failed
+      KAFKA_TOPIC_RUN_CANCELED: run.canceled
+      KAFKA_TOPIC_RUN_PAUSED: run.paused
+      KAFKA_TOPIC_RUN_RESUMED: run.resumed
+      # Step topics
+      KAFKA_TOPIC_STEP_STARTED: step.started
+      KAFKA_TOPIC_STEP_SUCCEEDED: step.succeeded
+      KAFKA_TOPIC_STEP_FAILED: step.failed
+      KAFKA_TOPIC_STEP_RETRYING: step.retrying
+      KAFKA_TOPIC_STEP_COMPENSATING: step.compensating
+      # Alert topics
+      KAFKA_TOPIC_ALERT_RAISED: alert.raised
+      KAFKA_TOPIC_ALERT_ACKNOWLEDGED: alert.acknowledged
+      KAFKA_TOPIC_ALERT_CLEARED: alert.cleared
+    depends_on:
+      - kafka
+    
   #localstack
   #-----------------
   localstack:

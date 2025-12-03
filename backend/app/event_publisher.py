@@ -7,12 +7,18 @@ import requests
 from datetime import datetime
 from flask import Response
 from threading import Lock
+from backend.app.services.kafka_service import get_kafka_producer
 
 clients = []
 clients_lock = Lock()
 
 TASKPULSEOS_URL = "https://taskpulseos.example.com/api/workflow-update"
-
+producer = get_kafka_producer()
+def delivery_report(err, msg):
+    if err is not None:
+        print(f"Delivery failed for {msg.topic()}: {err}")
+    else:
+        print(f"Delivered to {msg.topic()} [{msg.partition()}] @ offset {msg.offset()}")
 def push_update(data: dict):
     """
     Push update to all SSE clients and TaskPulseOS.
@@ -26,7 +32,37 @@ def push_update(data: dict):
 
     # Push to TaskPulseOS (async / best-effort)
     try:
-        requests.post(TASKPULSEOS_URL, json=data, timeout=1)
+        stepStatus = data.get("status")
+        if stepStatus == "success":
+            producer.produce(
+                topic='step.succeeded',
+                value=json.dumps(data).encode("utf-8"),
+                callback=delivery_report
+            )
+            # Let producer serve delivery callbacks and flush buffer
+            producer.poll(0)
+        elif stepStatus == "failure":
+            producer.produce(
+                topic='step.failed',
+                value=json.dumps(data).encode("utf-8"),
+                callback=delivery_report
+            )
+            producer.poll(0) 
+        elif stepStatus == "retry":
+            producer.produce(
+                topic='step.retrying',
+                value=json.dumps(data).encode("utf-8"),
+                callback=delivery_report
+            )
+            producer.poll(0)      
+        elif stepStatus == "compensation":
+            producer.produce(
+                topic='step.compensating',
+                value=json.dumps(data).encode("utf-8"),
+                callback=delivery_report
+            )
+            producer.poll(0)     
+        # requests.post(TASKPULSEOS_URL, json=data, timeout=1)
     except Exception as e:
         print(f"TaskPulseOS push failed: {e}")
 

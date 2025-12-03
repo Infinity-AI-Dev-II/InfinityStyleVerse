@@ -7,10 +7,21 @@ from backend.app.metrics import (
 from backend.app.tracing import tracer
 from backend.app.event_publisher import push_update
 
+#*
+# Wrap any function that represents a workflow step to automatically record:
+#Step success/failure
+#Execution duration
+#Prometheus metrics
+#Tracing span with OTEL
+#Real-time UI updates (SSE/WebSocket)
+#Error propagation
+
+#wrapper around the step.
 def track_step(workflow_name, run_id, step_id, func, *args, **kwargs):
     start_time = time.time()
     with tracer.start_as_current_span(f"{workflow_name}.{step_id}") as span:
         try:
+            #Runs your real step function
             result = func(*args, **kwargs)
             duration = time.time() - start_time
 

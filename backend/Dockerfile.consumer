@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy everything from project root
+COPY . .
+
+# Set Python path
+ENV PYTHONPATH=/app
+CMD ["python", "backend.services.kafka_consumer"]

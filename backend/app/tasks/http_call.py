@@ -14,7 +14,8 @@ from backend.app.utils.rate_limit import allow
 from backend.app.config.settings import settings
 from backend.app.tasks.utils import safe_retry
 from celery import shared_task
-from backend.app.tasks.decorators import instrument
+# from backend.app.tasks.decorators import instrument
+from backend.app.Decorators.Instruments import instrument
 
 logger = logging.getLogger(__name__)
 

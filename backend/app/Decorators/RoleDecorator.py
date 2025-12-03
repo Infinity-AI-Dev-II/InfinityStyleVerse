@@ -1,4 +1,4 @@
-# backend/app/decorators.py
+# backend/app/Decorators/decorators.py
 #   Implements a Flask decorator to enforce role-based access control on routes.
 from functools import wraps
 from flask import redirect, url_for, flash

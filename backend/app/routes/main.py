@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, render_template
-from backend.app.decorators import role_required 
+# from backend.app.decorators import role_required 
+from backend.app.Decorators.RoleDecorator import role_required 
 from flask_jwt_extended import jwt_required
 
 from dotenv import load_dotenv
