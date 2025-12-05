@@ -14,6 +14,7 @@ from backend.app.middleware.request_id import register_request_id_middleware
 
 # Database and app initialization
 from backend.app.database import db, init_db
+from backend.app.services.GetHeartBeatPolicy import getLatestWorkerPolicy
 from backend.app.sse import sse_bp
 
 # Import models for reference
@@ -33,6 +34,8 @@ load_dotenv()
 migrate = Migrate()
 login_manager = LoginManager()
 
+#worker heartbeat policy cache
+policies_cache = {}
 def create_app(config_name=None):
     # Base directories
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +47,10 @@ def create_app(config_name=None):
         template_folder=template_folder,
         static_folder=static_folder
     )
+    #set the global worker policy cache
+    global policies_cache
+    policies_cache = getLatestWorkerPolicy()
+    
     #redirect flask logger to guicorn server (to debug in docker)
     gunicorn_logger = logging.getLogger("gunicorn.error")
     if gunicorn_logger.handlers:

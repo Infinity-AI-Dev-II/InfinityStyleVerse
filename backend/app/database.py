@@ -1,6 +1,7 @@
 # backend/app/database.py
 #   Centralizes database configuration and session management for both
 #   Flask web app and standalone scripts/Celery tasks.
+from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from .config.settings import settings
@@ -20,7 +21,7 @@ SessionLocal = scoped_session(sessionmaker(bind=engine))
 
 # Base for declarative models (non-Flask)
 Base = declarative_base()
-
+@contextmanager
 def get_db_session():
     """Yield a SQLAlchemy session for scripts or Celery tasks."""
     session = SessionLocal()
