@@ -4,10 +4,13 @@ from flask_jwt_extended import jwt_required
 from backend.app.Decorators.ScopesRequirements import require_scopes
 from backend.app.TaskPulseOS.CommandHandlers.HandleUnhealthySteps import HandleUnhealthySteps
 from backend.app.TaskPulseOS.CommandHandlers.SaveHeartbeatCmdHnd import SaveHeartbeatCmdHnd
+from backend.app.TaskPulseOS.CommandHandlers.SendAlertHandler import CreateAlertHandler
+from backend.app.TaskPulseOS.Commands import SendAlertCommand
 from backend.app.TaskPulseOS.Commands.HandleUnhealthyStepsCmd import HandleUnhealthyStepsCmd
 from backend.app.TaskPulseOS.Commands.SaveHeartbeatCmd import SaveHeartbeatCmd
 from backend.app.TaskPulseOS.QuerryHandlers.CheckWorkerHealth import CheckWorkerHealth
 from backend.app.TaskPulseOS.QuerryHandlers.SelectLatestHB import SelectLatestHB
+from backend.app.models.alerts import SeverityLevel
 from backend.app.services.idempotency_service import compute_request_hash, read_idempotency, write_idempotency
 from backend.app.utils.rate_limit import allow
 from flask import current_app as app
@@ -110,9 +113,16 @@ def pulse_hook_heartbeat():
     if heatlthStatus["Status"] == "Healthy":
         return jsonify({"Status": "Success", "Message": "Heartbeat saved and worker is healthy"}),200
     elif heatlthStatus["Status"] == "Unhealthy":
-        #TODO: Handle unhealthy worker steps
+        #Handle unhealthy worker steps
         unhealthyCmd = HandleUnhealthyStepsCmd(worker_id=created.worker_id)#command creation
         statusUnhealthySteps = HandleUnhealthySteps(unhealthyCmd)
+        if statusUnhealthySteps["Status"] == "Error":
+            return jsonify({"error": statusUnhealthySteps["Message"]}),500
+        #send alert
+        alertCMD = SendAlertCommand(severity=SeverityLevel.ERROR,code=500,message="Worker Unhealthy: " + created.worker_id,created_at=created.last_seen_at,acknowledged_by=None,workerID=created.worker_id,)
+        alertStat = CreateAlertHandler.handle(alertCMD)
+        if alertStat["Status"] == "Error":
+            return jsonify({"error": alertStat["Message"]}),500
         return jsonify({"Status": "Warning", "Message": "Heartbeat saved but worker is unhealthy"}),200
     else:
         return jsonify({"error": heatlthStatus["Message"]}),500         
@@ -174,10 +184,43 @@ def get_run_steps(run_id):
         "steps": []
     }), 200
 
-
+#get the alerts
+#TODO: Install sse
 @TaskPulse_bp.route("/pulse/alerts", methods=["GET"])
 @jwt_required()
+@require_scopes(["read:pulse"]) #scope validation
 def get_alerts():
+    """
+    Auth header:
+    Authorization: Bearer <your-jwt-token>
+    Idempotency-Key: 8b4d1d0e-52f2-4b4c-8132-18e453d9e8fc
+    Content-Type: application/json
+    
+    paramereters: tenant, severity
+    """
+    #rate limitting
+    url = "http://localhost:8000/pulse/alerts"
+    parsed = urlparse.urlparse(url)
+    host = (parsed.hostname or "").lower()
+    if not host:
+        return {"status": None, "data": None, "error": f"Invalid URL, host missing: {url}"}
+    if not allow(host):
+        return {"status": None, "data": None, "error": f"Rate limit exceeded for host: {host}"}
+    #Idempotency-Key checking
+    idem_key = request.headers.get("Idempotency-Key")
+    if not idem_key:
+        return jsonify({"error" : "Idempotency key is required"})
+    else:
+        status = read_idempotency(idem_key)
+        if status:
+            try:
+                response = json.loads(status.response_json)
+            except:
+                response = {"Error" : "Error occured"}
+            return response  
+    #checking request parameters
+    tenant = request.args.get("tenant")#TODO: Use tenant to filter alerts
+    severity = request.args.get("severity")  
     return jsonify({"alerts": []}), 200
 
 

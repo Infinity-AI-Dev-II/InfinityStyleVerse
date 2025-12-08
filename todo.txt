@@ -1,0 +1,5 @@
+ASK
+1. Can I use web sockets (socketIO) in TaskPulseOS alert notifications
+
+TODO
+1.Install flask-sse in requirements.txt

@@ -27,6 +27,7 @@ import os
 #TODO: Build
 from flask_caching import Cache
 import redis
+from flask_sse import sse
 # Load environment variables
 load_dotenv()
 
@@ -223,4 +224,5 @@ def create_app(config_name=None):
     app.register_blueprint(persona_mesh_bp)
     app.register_blueprint(echo_bp)
     app.register_blueprint(bodyMorph_bp)
+    app.register_blueprint(sse, url_prefix="/pulse/alerts")
     return app
