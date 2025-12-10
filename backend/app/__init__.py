@@ -224,5 +224,5 @@ def create_app(config_name=None):
     app.register_blueprint(persona_mesh_bp)
     app.register_blueprint(echo_bp)
     app.register_blueprint(bodyMorph_bp)
-    app.register_blueprint(sse, url_prefix="/pulse/alerts")
+    app.register_blueprint(sse, url_prefix="/pulse/stream")
     return app

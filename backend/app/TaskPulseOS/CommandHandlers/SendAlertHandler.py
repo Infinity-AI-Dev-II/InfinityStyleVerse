@@ -4,6 +4,7 @@ from backend.app.TaskPulseOS.Commands import SendAlertCommand
 from backend.app.database import get_db_session
 from backend.app.models.alerts import Alert
 from backend.app.models.run_steps import RunStep
+from backend.app.models.runs import Run
 from backend.app.services.kafka_service import get_kafka_producer
 
 
@@ -32,18 +33,23 @@ class CreateAlertHandler:
                     )
                     session.add(alert)
                     
-            event = {
-            "event": "alert.raised",
-            "severity": command.severity,
-            "code": command.code,
-            "run_id": command.run_id,
-            "message": command.message,
-            "ts": datetime.utcnow().isoformat()
-            }
-            self.kafka_producer.produce(
-                topic='step.failed',
-                value=json.dumps(event).encode("utf-8")
-            )
+                    runResults = session.query(Run.tenant).filter(
+                    Run.id == run_id
+                    )
+                    
+                    event = {
+                    "event": "alert.raised",
+                    "tenant": runResults[0].tenant if runResults.count() > 0 else None,
+                    "step_id": step_id,
+                    "status": "failed",
+                    "run_id": command.run_id,
+                    "ts": datetime.utcnow().isoformat(),
+                    "payload": {"error_code":command.code,"message":command.message,"severity": command.severity}
+                    }
+                    self.kafka_producer.produce(
+                        topic='step.failed',
+                        value=json.dumps(event).encode("utf-8")
+                    )
             return {"Status": "Success", "Message": alert}
         except Exception as e:
             return {"Status": "Error", "Message": str(e)}

@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-from flask import Blueprint, json, request, jsonify
+from flask import Blueprint, abort, json, request, jsonify
 from flask_jwt_extended import jwt_required
 from backend.app.Decorators.ScopesRequirements import require_scopes
 from backend.app.TaskPulseOS.CommandHandlers.HandleUnhealthySteps import HandleUnhealthySteps
@@ -15,6 +15,7 @@ from backend.app.services.idempotency_service import compute_request_hash, read_
 from backend.app.utils.rate_limit import allow
 from flask import current_app as app
 from backend.app import policies_cache
+from flask_sse import sse
 
 TaskPulse_bp = Blueprint("TaskPulse_bp", __name__)
 
@@ -228,4 +229,15 @@ def get_alerts():
 @jwt_required()
 def get_workers():
     return jsonify({"workers": []}), 200
+
+#streaming connection establishments (like alert notifications)
+#TODO: MUST TEST
+@TaskPulse_bp.route("/pulse/stream", methods=["POST"])
+def pulse_stream():
+    tenant = request.args.get("tenant")
+    if not tenant:
+        abort(400, "tenant query param required")
+
+    channel_name = f"tenant:{tenant}"
+    return sse.stream(channel=channel_name)
 
