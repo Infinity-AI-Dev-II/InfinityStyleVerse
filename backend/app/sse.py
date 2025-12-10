@@ -3,7 +3,8 @@ from flask import Blueprint, Response
 import redis
 import json
 
-sse_bp = Blueprint("sse", __name__)
+# Use a distinct blueprint name to avoid clashing with flask_sse's built-in "sse" blueprint
+sse_bp = Blueprint("workflow_sse", __name__)
 r = redis.Redis(host='localhost', port=6379, db=0)
 
 def event_stream(run_id):

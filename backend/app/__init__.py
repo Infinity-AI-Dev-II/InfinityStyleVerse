@@ -11,6 +11,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 import logging
 from dotenv import load_dotenv
 from backend.app.middleware.request_id import register_request_id_middleware
+import uuid
 
 # Database and app initialization
 from backend.app.database import db, init_db
@@ -100,10 +101,12 @@ def create_app(config_name=None):
         except Exception:
             pass
 
+        req_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         log = RequestLog(
+            request_id=req_id,
             user_id=user_id,
             endpoint=request.path,
-             method=request.method
+            method=request.method
         )
         db.session.add(log)
         db.session.commit()
