@@ -39,6 +39,11 @@ PLACEHOLDER_IMAGE_BYTES = b"placeholder-bodymorph-image"
 s3_client = AWSConfig.get_s3_client()
 S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
 
+# TaskPulseOS wiring (disabled by default; enable with BODYMORPH_TASKPULSE_ENABLED=true)
+TASKPULSE_ENABLED = os.getenv("BODYMORPH_TASKPULSE_ENABLED", "false").lower() == "true"
+TASKPULSE_WORKFLOW_NAME = os.getenv("BODYMORPH_TASKPULSE_WORKFLOW", "StyleSense.BodyMorph")
+TASKPULSE_STEP_ID = "body_profile"
+
 # Fallback in-memory cache if Redis is unavailable
 _LOCAL_CACHE = {}
 
@@ -182,6 +187,44 @@ def _make_error_response(code: str, message: str, status: int, request_id: str, 
     if details:
         payload["error"]["details"] = details
     return jsonify(payload), status
+
+
+def _emit_taskpulse_event(status: str, request_id: str, meta: Optional[dict] = None):
+    """
+    Emit a TaskPulseOS-compatible event (best-effort; no-op if disabled).
+    """
+    if not TASKPULSE_ENABLED:
+        return
+
+    payload = {
+        "workflow_name": TASKPULSE_WORKFLOW_NAME,
+        "run_id": request_id,
+        "step_id": TASKPULSE_STEP_ID,
+        "status": status,
+        "component": "BodyMorph",
+    }
+    if meta:
+        payload.update(meta)
+
+    try:
+        # Lazy import to avoid app-context issues during blueprint registration
+        from backend.app.event_publisher import push_update
+    except Exception as exc:  # pragma: no cover - defensive
+        current_app.logger.debug({
+            "component": "BodyMorph",
+            "event": "taskpulse_import_failed",
+            "error": str(exc)
+        })
+        return
+
+    try:
+        push_update(payload)
+    except Exception as exc:  # pragma: no cover - defensive
+        current_app.logger.debug({
+            "component": "BodyMorph",
+            "event": "taskpulse_emit_failed",
+            "error": str(exc)
+        })
 
 
 def _get_redis_client():
@@ -331,6 +374,7 @@ def body_profile():
     """
     start_time = time.time()
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    _emit_taskpulse_event("running", request_id, {"event": "body_profile_started"})
 
     idem_key = request.headers.get("Idempotency-Key")
     if not idem_key:
@@ -502,6 +546,17 @@ def body_profile():
                 "event": "cache_hit",
                 "cache_key": cache_key
             })
+            total_latency_ms = int((time.time() - start_time) * 1000)
+            _emit_taskpulse_event(
+                "success",
+                request_id,
+                {
+                    "event": "body_profile_cached",
+                    "latency_ms": total_latency_ms,
+                    "cache_key": cache_key,
+                    "source": "cache"
+                },
+            )
             return jsonify(cached_response), 200
 
     # Run mocked BodyMorph engine
@@ -516,7 +571,8 @@ def body_profile():
             status=400,
             request_id=request_id,
             idem_key=idem_key,
-            request_hash=request_hash
+            request_hash=request_hash,
+            taskpulse_meta={"latency_ms": int((time.time() - start_time) * 1000)}
         )
     except LowQualityError as exc:
         return _handle_engine_error(
@@ -525,7 +581,8 @@ def body_profile():
             status=400,
             request_id=request_id,
             idem_key=idem_key,
-            request_hash=request_hash
+            request_hash=request_hash,
+            taskpulse_meta={"latency_ms": int((time.time() - start_time) * 1000)}
         )
     except HeavyOcclusionError as exc:
         return _handle_engine_error(
@@ -534,7 +591,8 @@ def body_profile():
             status=400,
             request_id=request_id,
             idem_key=idem_key,
-            request_hash=request_hash
+            request_hash=request_hash,
+            taskpulse_meta={"latency_ms": int((time.time() - start_time) * 1000)}
         )
     except ExtremePerspectiveError as exc:
         return _handle_engine_error(
@@ -543,7 +601,8 @@ def body_profile():
             status=400,
             request_id=request_id,
             idem_key=idem_key,
-            request_hash=request_hash
+            request_hash=request_hash,
+            taskpulse_meta={"latency_ms": int((time.time() - start_time) * 1000)}
         )
     except UnknownSilhouetteError as exc:
         return _handle_engine_error(
@@ -552,7 +611,8 @@ def body_profile():
             status=400,
             request_id=request_id,
             idem_key=idem_key,
-            request_hash=request_hash
+            request_hash=request_hash,
+            taskpulse_meta={"latency_ms": int((time.time() - start_time) * 1000)}
         )
     except BodyMorphError as exc:
         return _handle_engine_error(
@@ -561,7 +621,8 @@ def body_profile():
             status=500,
             request_id=request_id,
             idem_key=idem_key,
-            request_hash=request_hash
+            request_hash=request_hash,
+            taskpulse_meta={"latency_ms": int((time.time() - start_time) * 1000)}
         )
     except Exception as exc:  # pragma: no cover - safety net
         current_app.logger.exception({
@@ -576,7 +637,8 @@ def body_profile():
             status=500,
             request_id=request_id,
             idem_key=idem_key,
-            request_hash=request_hash
+            request_hash=request_hash,
+            taskpulse_meta={"latency_ms": int((time.time() - start_time) * 1000)}
         )
 
     engine_ms = int((time.time() - engine_start) * 1000)
@@ -599,6 +661,8 @@ def body_profile():
     write_idempotency(idem_key, request_hash, {"body": final_response, "_status": 200})
     _cache_set(redis_client, cache_key, json.dumps(final_response), ex=3600)
 
+    trace_ms = sum(stage.get("ms", 0) for stage in trace)
+
     current_app.logger.info({
         "component": "BodyMorph",
         "request_id": request_id,
@@ -608,10 +672,31 @@ def body_profile():
         "latency_ms": total_latency_ms
     })
 
+    _emit_taskpulse_event(
+        "success",
+        request_id,
+        {
+            "event": "body_profile_completed",
+            "latency_ms": total_latency_ms,
+            "trace_ms": trace_ms,
+            "body_type": final_response.get("body_type"),
+            "confidence": final_response.get("confidence"),
+            "source": "engine",
+        },
+    )
+
     return jsonify(final_response), 200
 
 
-def _handle_engine_error(code: str, message: str, status: int, request_id: str, idem_key: str, request_hash: str):
+def _handle_engine_error(
+    code: str,
+    message: str,
+    status: int,
+    request_id: str,
+    idem_key: str,
+    request_hash: str,
+    taskpulse_meta: Optional[dict] = None,
+):
     error_body = {
         "error": {
             "code": code,
@@ -619,6 +704,11 @@ def _handle_engine_error(code: str, message: str, status: int, request_id: str, 
         },
         "request_id": request_id
     }
+    meta = {"event": "body_profile_failed", "error_code": code, "http_status": status}
+    if taskpulse_meta:
+        meta.update(taskpulse_meta)
+    _emit_taskpulse_event("failure", request_id, meta)
+
     write_idempotency(idem_key, request_hash, {"body": error_body, "_status": status})
     current_app.logger.warning({
         "component": "BodyMorph",
