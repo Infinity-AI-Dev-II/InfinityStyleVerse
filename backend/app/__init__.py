@@ -6,6 +6,7 @@ from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_reque
 from flask_login import LoginManager
 from flasgger import Swagger
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+import uuid
 import logging
 from dotenv import load_dotenv
 from backend.app.middleware.request_id import register_request_id_middleware
@@ -75,10 +76,12 @@ def create_app(config_name=None):
             user_id = get_jwt_identity()
         except Exception:
             pass
-
+        req_id=request.headers.get("X-Request-ID") or str(uuid.uuid4())
         log = RequestLog(
+            request_id=req_id,
             user_id=user_id,
-            endpoint=request.path
+            endpoint=request.path,
+            method=request.method
         )
         db.session.add(log)
         db.session.commit()
@@ -182,6 +185,7 @@ def create_app(config_name=None):
     from .routes.flow import flow_bp
     from .routes.health_routes import health_bp
     from .routes.echo_routes import echo_bp
+    from .routes.catalog_vision_routes import catalog_vision_bp
     # Register blueprints
     app.register_blueprint(health_bp)
     app.register_blueprint(sse_bp)
@@ -197,4 +201,5 @@ def create_app(config_name=None):
     app.register_blueprint(recommendation_bp)
     app.register_blueprint(persona_mesh_bp)
     app.register_blueprint(echo_bp)
+    app.register_blueprint(catalog_vision_bp)
     return app

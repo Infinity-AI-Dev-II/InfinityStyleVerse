@@ -1,7 +1,10 @@
 import pandas as pd
+import os
 from typing import Literal
 
-DATA_PATH = 'backend/app/StyleSense/data/stylesense_seed_data.csv'
+# Resolve absolute path to data file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE_DIR, 'data', 'stylesense_seed_data.csv')
 
 def load_stylesense_data(
     module: Literal["catalog_vision", "outfit_scorer", "bodymorph"]
