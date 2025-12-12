@@ -68,7 +68,8 @@ def handle_alert_message(msg_data: dict, topic: str):
     """Handle alert events"""
     logger.info(f"[ALERT] {topic}: {msg_data}")
     # TODO: Connect to TaskPulseOS
-    sse.publish(msg_data, type="message")#publish to sse clients (subscribed to /pulse/alerts)
+    if topic == "alert.raised":
+        sse.publish(msg_data, type="message")#publish to sse clients (subscribed to /pulse/alerts)
 
 # ─────────────────────────────────────────────────────────
 # MESSAGE ROUTING
