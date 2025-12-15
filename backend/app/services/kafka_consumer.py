@@ -68,10 +68,13 @@ def handle_step_message(msg_data: dict, topic: str):
 def handle_alert_message(msg_data: dict, topic: str):
     """Handle alert events"""
     logger.info(f"[ALERT] {topic}: {msg_data}")
-    # TODO: Connect to TaskPulseOS
-    if topic == "alert.raised":
-        sse.publish(msg_data, type="message")#publish to sse clients (subscribed to /pulse/alerts)
-
+    tenant = msg_data.get("tenant")
+    #publish to sse clients (subscribed to /pulse/alerts)
+    sse.publish(
+    msg_data,
+    type="event",
+    channel=f"tenant:{tenant}"
+    )
 # ─────────────────────────────────────────────────────────
 # MESSAGE ROUTING
 # ─────────────────────────────────────────────────────────
