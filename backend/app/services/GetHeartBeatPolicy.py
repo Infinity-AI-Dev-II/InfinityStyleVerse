@@ -1,4 +1,4 @@
-from email.policy import Policy
+from backend.app.models.echo_models import Policy
 from ..database import db, get_db_session
 def getLatestWorkerPolicy():
     with get_db_session() as session:

@@ -8,8 +8,10 @@ from backend.app.TaskPulseOS.CommandHandlers.SendAlertHandler import CreateAlert
 from backend.app.TaskPulseOS.Commands import SendAlertCommand
 from backend.app.TaskPulseOS.Commands.HandleUnhealthyStepsCmd import HandleUnhealthyStepsCmd
 from backend.app.TaskPulseOS.Commands.SaveHeartbeatCmd import SaveHeartbeatCmd
+from backend.app.TaskPulseOS.Quarries.getRunInfoIDQuery import GetRunInfoIDQuery
 from backend.app.TaskPulseOS.QuerryHandlers.CheckWorkerHealth import CheckWorkerHealth
 from backend.app.TaskPulseOS.QuerryHandlers.SelectLatestHB import SelectLatestHB
+from backend.app.TaskPulseOS.QuerryHandlers.getRunInfoIDQueryHnd import GetRunInfoIDQueryHandler
 from backend.app.models.alerts import SeverityLevel
 from backend.app.services.idempotency_service import compute_request_hash, read_idempotency, write_idempotency
 from backend.app.utils.rate_limit import allow
@@ -170,11 +172,18 @@ def get_runs():
 
 @TaskPulse_bp.route("/pulse/runs/<string:run_id>", methods=["GET"])
 @jwt_required()
+@require_scopes(["write:hooks"]) 
 def get_run(run_id):
-    return jsonify({
-        "run_id": run_id,
-        "data": {}
-    }), 200
+    try:
+        query = GetRunInfoIDQuery(run_id=run_id)
+        obj = GetRunInfoIDQueryHandler()
+        result = obj.getWorkflowRun(query)
+        if result["status"] == "success":
+            return jsonify(result), 200
+        else:
+            return jsonify({"error occured": result["Message"]}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500    
 
 
 @TaskPulse_bp.route("/pulse/runs/<string:run_id>/steps", methods=["GET"])

@@ -7,7 +7,8 @@ import logging
 from confluent_kafka import Consumer
 from enum import Enum
 
-from backend.app import sse
+# from backend.app import sse
+from flask_sse import sse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

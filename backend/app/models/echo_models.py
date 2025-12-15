@@ -60,6 +60,9 @@ class Policy(db.Model):
     weights_blob = db.Column(db.LargeBinary, nullable=True)
     config_json = db.Column(db.JSON, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+#TODO: add policy for sla
+#config_json: at_risk, critical_path, Fallback_rate
+    
 
 class Experiment(db.Model):
     __tablename__ = "experiments"

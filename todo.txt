@@ -1,5 +1,7 @@
 ASK
 1. Can I use web sockets (socketIO) in TaskPulseOS alert notifications
+2. are we input workflow object and array of steps objects to this endpoint "/predict/sla_risk"
 
 TODO
 1.Install flask-sse in requirements.txt
+2.API Key security in internal API calls (limmit_route_internal)
