@@ -8,4 +8,4 @@ COPY . .
 
 # Set Python path
 ENV PYTHONPATH=/app
-CMD ["python", "backend.services.kafka_consumer"]
+CMD ["python3", "./backend/app/services/kafka_consumer.py"]
