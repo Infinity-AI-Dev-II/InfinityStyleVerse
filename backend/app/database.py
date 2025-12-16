@@ -16,8 +16,8 @@ db = SQLAlchemy()  # use db.Model for your models
 # Standard SQLAlchemy for scripts/tasks
 # ------------------------------
 DATABASE_URL = settings.SQLALCHEMY_DATABASE_URI
-engine = create_engine(DATABASE_URL, echo=True)
-SessionLocal = scoped_session(sessionmaker(bind=engine))
+engine = create_engine(DATABASE_URL, echo=False)
+SessionLocal = scoped_session(sessionmaker(bind=engine, autoflush=False, expire_on_commit=False))
 
 # Base for declarative models (non-Flask)
 Base = declarative_base()

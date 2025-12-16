@@ -58,6 +58,8 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile.consumer
+    volumes:
+      - ./:/app:delegated  
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_CONSUMER_GROUP_ID: skillio-consumer-group

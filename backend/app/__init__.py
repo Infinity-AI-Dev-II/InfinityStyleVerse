@@ -16,6 +16,7 @@ from backend.app.middleware.request_id import register_request_id_middleware
 from backend.app.database import db, init_db
 from backend.app.services.GetHeartBeatPolicy import getLatestWorkerPolicy
 from backend.app.services.get_SLA_alert_rules import get_Latest_SLA_rule
+from backend.app.services.kafka_service import create_kafka_topics
 from backend.app.sse import sse_bp
 
 # Import models for reference
@@ -50,6 +51,8 @@ def create_app(config_name=None):
         template_folder=template_folder,
         static_folder=static_folder
     )
+    #create kafka topics
+    create_kafka_topics()
     #set the global worker policy cache
     global policies_cache
     policies_cache = getLatestWorkerPolicy()
@@ -213,6 +216,7 @@ def create_app(config_name=None):
     from .routes.health_routes import health_bp
     from .routes.echo_routes import echo_bp
     from .StyleSense.StyleAPI.BodyMorphRoutes import bodyMorph_bp
+    from backend.app.routes.TaskPulseOS_routes import TaskPulse_bp
     # Register blueprints
     app.register_blueprint(health_bp)
     app.register_blueprint(sse_bp)
@@ -229,5 +233,6 @@ def create_app(config_name=None):
     app.register_blueprint(persona_mesh_bp)
     app.register_blueprint(echo_bp)
     app.register_blueprint(bodyMorph_bp)
-    app.register_blueprint(sse, url_prefix="/pulse/stream")
+    app.register_blueprint(TaskPulse_bp)
+    #app.register_blueprint(sse, url_prefix="/pulse/stream")
     return app

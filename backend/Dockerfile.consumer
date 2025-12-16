@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy everything from project root
 COPY . .
 
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir confluent-kafka
+
 # Set Python path
 ENV PYTHONPATH=/app
 CMD ["python3", "./backend/app/services/kafka_consumer.py"]

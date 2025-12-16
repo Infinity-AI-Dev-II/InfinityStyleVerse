@@ -6,7 +6,7 @@ import json
 import logging
 from confluent_kafka import Consumer
 from enum import Enum
-
+from flask import current_app as app
 # from backend.app import sse
 from flask_sse import sse
 
@@ -70,11 +70,14 @@ def handle_alert_message(msg_data: dict, topic: str):
     logger.info(f"[ALERT] {topic}: {msg_data}")
     tenant = msg_data.get("tenant")
     #publish to sse clients (subscribed to /pulse/alerts)
-    sse.publish(
-    msg_data,
-    type="event",
-    channel=f"tenant:{tenant}"
-    )
+    # sse.publish(
+    # msg_data,
+    # type="event",
+    # channel=f"tenant:{tenant}"
+    # )
+    redis_client = app.config["REDIS_CLIENT"]
+    redis_channel = f"tenant:{tenant}"
+    redis_client.publish(redis_channel, json.dumps(msg_data))
 # ─────────────────────────────────────────────────────────
 # MESSAGE ROUTING
 # ─────────────────────────────────────────────────────────
@@ -136,7 +139,7 @@ def start_consumer():
     try:
         while True:
             msg = consumer.poll(timeout=1.0)
-            
+            logger.info("Listening")
             if msg is None:
                 continue
                 
@@ -155,4 +158,8 @@ def start_consumer():
 
 
 if __name__ == "__main__":
-    start_consumer()
+    try:
+        start_consumer()
+    except Exception as e:
+        logging.Logger.error(f"Failed to start consumer: {e}")    
+        

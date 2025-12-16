@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-from flask import Blueprint, abort, json, request, jsonify
+from flask import Blueprint, Response, abort, json, request, jsonify, stream_with_context
 from flask_jwt_extended import jwt_required
 from backend.app.Decorators.ScopesRequirements import require_scopes
 from backend.app.TaskPulseOS.CommandHandlers.HandleUnhealthySteps import HandleUnhealthySteps
@@ -239,14 +239,37 @@ def get_alerts():
 def get_workers():
     return jsonify({"workers": []}), 200
 
+def event_stream(channel_name):
+    redis_client = app.config["REDIS_CLIENT"]
+    # 1. Create a PubSub object
+    pubsub = redis_client.pubsub()
+    
+    # 2. Subscribe to the specific channel for this user group
+    pubsub.subscribe(channel_name)
+    
+    # 3. Listen for messages
+    for message in pubsub.listen():
+        if message['type'] == 'message':
+            # Decode the byte data from Redis
+            data = message['data'].decode('utf-8')
+            
+            # Yield in SSE format
+            yield f"data: {data}\n\n"
+
+
 #streaming connection establishments (like alert notifications)
 #TODO: MUST TEST
-@TaskPulse_bp.route("/pulse/stream", methods=["POST"])
+@TaskPulse_bp.route("/pulse/stream", methods=["GET"])
 def pulse_stream():
     tenant = request.args.get("tenant")
     if not tenant:
         abort(400, "tenant query param required")
-
-    channel_name = f"tenant:{tenant}"
-    return sse.stream(channel=channel_name)
+    # channel_name = f"tenant:{tenant}"
+    # return sse.stream()
+    redis_channel = f"alert:{tenant}"
+    
+    return Response(
+        stream_with_context(event_stream(redis_channel)),
+        mimetype='text/event-stream'
+    )
 
