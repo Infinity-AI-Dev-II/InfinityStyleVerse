@@ -1,7 +1,7 @@
 import hashlib
 import json
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from .exceptions import (
     BodyMorphError,
@@ -30,21 +30,23 @@ MAX_TILT_DEG = 90.0
 class BodyMorphEngine:
     """
     Mocked BodyMorph engine that simulates a full pipeline:
-      person detection -> pose estimation -> segmentation -> proportions ->
-      silhouette classification -> posture heuristics.
+      person detection -> pose estimation -> segmentation -> scale normalize ->
+      proportions -> silhouette classification -> posture heuristics.
 
     This engine is deterministic for the same (image_bytes, hints, camera) inputs.
     It is designed to be safe to call directly (e.g., tests/dev) by validating inputs
     and guarding output shape.
     """
 
-    def __init__(self, seed_salt: str = "bodymorph"):
+    def __init__(self, seed_salt: str = "bodymorph", step_adapters: Optional[Dict[str, Callable]] = None):
         """
         Args:
           seed_salt: additional salt used to generate deterministic per-input seeds.
                      Changing this will change outputs for the same inputs.
+          step_adapters: optional mapping of pipeline stage -> callable to override mocked logic.
         """
         self.seed_salt = seed_salt
+        self.step_adapters = step_adapters or {}
 
     def run(
         self,
@@ -81,8 +83,20 @@ class BodyMorphEngine:
         # Person detection / quality gate
         # ----------------------------------------------------------------------
         detect_start = time.time()
-        quality = self._simulate_quality(rng_seed, hints, camera)
+        quality = self._run_adapter("detect_person", self._simulate_quality, rng_seed, hints, camera)
+        if not isinstance(quality, dict):
+            raise BodyMorphError("detect_person step must return a quality dict.")
         trace.append({"stage": "detect_person", "ms": int((time.time() - detect_start) * 1000)})
+
+        # ----------------------------------------------------------------------
+        # Segmentation / occlusion (mocked)
+        # ----------------------------------------------------------------------
+        segment_start = time.time()
+        segmentation_result = self._run_adapter("segment_body", self._segment_body, rng_seed, quality)
+        if isinstance(segmentation_result, dict):
+            quality.update(segmentation_result)
+        # Occlusion is embedded in quality; this stage is logged for workflow parity and adapter overrides.
+        trace.append({"stage": "segment_body", "ms": int((time.time() - segment_start) * 1000)})
 
         # May raise MultiSubjectError; otherwise returns degrade reason
         degrade_reason = self._guard_quality(quality)
@@ -91,17 +105,27 @@ class BodyMorphEngine:
         # Pose estimation and segmentation (mocked landmarks)
         # ----------------------------------------------------------------------
         pose_start = time.time()
-        landmarks = self._mock_landmarks(rng_seed)
+        landmarks = self._run_adapter("pose_estimate", self._mock_landmarks, rng_seed)
         trace.append({"stage": "pose_estimate", "ms": int((time.time() - pose_start) * 1000)})
 
+        postprocess_start = time.time()
+        landmarks = self._run_adapter("postprocess_landmarks", lambda l: l, landmarks)
+        trace.append({"stage": "postprocess_landmarks", "ms": int((time.time() - postprocess_start) * 1000)})
+
         # ----------------------------------------------------------------------
-        # Proportion estimation and silhouette classification
+        # Scale normalization then proportion estimation
         # ----------------------------------------------------------------------
+        normalize_start = time.time()
+        proportions = self._run_adapter("normalize_scale", self._estimate_proportions, rng_seed, hints)
+        trace.append({"stage": "normalize_scale", "ms": int((time.time() - normalize_start) * 1000)})
+
         props_start = time.time()
-        proportions = self._estimate_proportions(rng_seed, hints)
-        normalized = self._normalize(proportions)
-        body_type, confidence = self._classify_silhouette(normalized, quality)
-        trace.append({"stage": "classify_silhouette", "ms": int((time.time() - props_start) * 1000)})
+        normalized = self._run_adapter("estimate_proportions", self._normalize, proportions)
+        trace.append({"stage": "estimate_proportions", "ms": int((time.time() - props_start) * 1000)})
+
+        classify_start = time.time()
+        body_type, confidence = self._run_adapter("classify_silhouette", self._classify_silhouette, normalized, quality)
+        trace.append({"stage": "classify_silhouette", "ms": int((time.time() - classify_start) * 1000)})
 
         # Graceful degradation: keep processing but mark results as unknown with low confidence
         if degrade_reason:
@@ -115,7 +139,9 @@ class BodyMorphEngine:
         # ----------------------------------------------------------------------
         # Posture heuristics (mock)
         # ----------------------------------------------------------------------
-        posture = self._posture_estimate(rng_seed, quality)
+        posture_start = time.time()
+        posture = self._run_adapter("posture_heuristics", self._posture_estimate, rng_seed, quality)
+        trace.append({"stage": "posture_heuristics", "ms": int((time.time() - posture_start) * 1000)})
 
         # Final result contract
         result = {
@@ -231,6 +257,13 @@ class BodyMorphEngine:
             raise BodyMorphError(f"force_failure must be one of: {allowed}")
         return normalized
 
+    def _run_adapter(self, name: str, default_fn: Callable, *args, **kwargs):
+        """
+        Invoke an adapter override for a pipeline step, falling back to the default mock implementation.
+        """
+        fn = self.step_adapters.get(name, default_fn)
+        return fn(*args, **kwargs)
+
     # --------------------------------------------------------------------------
     # Determinism helpers
     # --------------------------------------------------------------------------
@@ -322,6 +355,12 @@ class BodyMorphEngine:
         if quality["perspective"] == "extreme":
             degrade_reason = degrade_reason or "extreme_perspective"
         return degrade_reason
+
+    def _segment_body(self, seed: str, quality: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Placeholder segmentation hook (adapter-ready). Returns quality unmodified by default.
+        """
+        return quality
 
     def _mock_landmarks(self, seed: str) -> Dict[str, List[int]]:
         """
