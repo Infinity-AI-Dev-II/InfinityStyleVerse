@@ -46,4 +46,5 @@ EXPOSE 8000
 
 # entrypoint -> run migrations (if any) and start gunicorn
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["gunicorn", "backend.app:create_app()", "-b", "0.0.0.0:8000", "--workers", "4", "--worker-class", "gthread", "--threads", "4"]
+# CMD ["gunicorn", "backend.app:create_app()", "-b", "0.0.0.0:8000", "--workers", "4", "--worker-class", "gthread", "--threads", "4"]
+CMD ["gunicorn", "backend.app:create_app()", "-b", "0.0.0.0:8000", "--workers", "4", "--worker-class", "gevent", "--threads", "4", "--timeout", "300"]

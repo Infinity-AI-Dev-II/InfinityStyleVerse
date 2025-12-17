@@ -1,5 +1,9 @@
 #this is loaded by the docker file and calls the create app function.
 #initializes the backend through docker
+
+from gevent import monkey
+monkey.patch_all()
+
 import os
 from flask import Flask, Response, request, send_from_directory, jsonify
 from flask_cors import CORS
@@ -58,7 +62,7 @@ def create_app(config_name=None):
     policies_cache = getLatestWorkerPolicy()
     
     global alertRule
-    alertRult = get_Latest_SLA_rule()
+    alertRule = get_Latest_SLA_rule()
     
     #redirect flask logger to guicorn server (to debug in docker)
     gunicorn_logger = logging.getLogger("gunicorn.error")

@@ -7,6 +7,7 @@ import logging
 from confluent_kafka import Consumer
 from enum import Enum
 from flask import current_app as app
+import redis
 # from backend.app import sse
 from flask_sse import sse
 
@@ -75,8 +76,15 @@ def handle_alert_message(msg_data: dict, topic: str):
     # type="event",
     # channel=f"tenant:{tenant}"
     # )
-    redis_client = app.config["REDIS_CLIENT"]
-    redis_channel = f"tenant:{tenant}"
+    # redis_client = app.config["REDIS_CLIENT"]
+    redis_client = redis.Redis(
+    host="redis",
+    port=6379,
+    decode_responses=True,
+    socket_timeout=5,
+    socket_connect_timeout=5
+    )
+    redis_channel = f"alert:{tenant}"
     redis_client.publish(redis_channel, json.dumps(msg_data))
 # ─────────────────────────────────────────────────────────
 # MESSAGE ROUTING

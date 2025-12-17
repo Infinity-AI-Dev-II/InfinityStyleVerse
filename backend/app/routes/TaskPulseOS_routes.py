@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 from flask import Blueprint, Response, abort, json, request, jsonify, stream_with_context
 from flask_jwt_extended import jwt_required
+import redis
 from backend.app.Decorators.ScopesRequirements import require_scopes
 from backend.app.TaskPulseOS.CommandHandlers.HandleUnhealthySteps import HandleUnhealthySteps
 from backend.app.TaskPulseOS.CommandHandlers.SaveHeartbeatCmdHnd import SaveHeartbeatCmdHnd
@@ -16,8 +17,20 @@ from backend.app.models.alerts import SeverityLevel
 from backend.app.services.idempotency_service import compute_request_hash, read_idempotency, write_idempotency
 from backend.app.utils.rate_limit import allow
 from flask import current_app as app
+import logging
 from backend.app import policies_cache
 from flask_sse import sse
+import time
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+redis_client = redis.Redis(
+                host="redis",
+                port=6379,
+                decode_responses=True,
+                socket_timeout=5,
+                socket_connect_timeout=5
+            )
 
 TaskPulse_bp = Blueprint("TaskPulse_bp", __name__)
 
@@ -45,8 +58,8 @@ def pulse_hook_step():
     }), 200
 
 @TaskPulse_bp.route("/pulse/hooks/heartbeat", methods=["POST"])
-@jwt_required()
-@require_scopes(["write:hooks"]) #scope validation
+# @jwt_required()
+# @require_scopes(["write:hooks"]) #scope validation
 def pulse_hook_heartbeat():
     """
     Auth header:
@@ -195,7 +208,6 @@ def get_run_steps(run_id):
     }), 200
 
 #get the alerts
-#TODO: Install sse
 @TaskPulse_bp.route("/pulse/alerts", methods=["GET"])
 @jwt_required()
 @require_scopes(["read:pulse"]) #scope validation
@@ -231,6 +243,9 @@ def get_alerts():
     #checking request parameters
     tenant = request.args.get("tenant")#TODO: Use tenant to filter alerts
     severity = request.args.get("severity")  
+    if tenant is None or severity is None: 
+        return json({"error": "Values are required"}), 400
+    
     return jsonify({"alerts": []}), 200
 
 
@@ -240,25 +255,35 @@ def get_workers():
     return jsonify({"workers": []}), 200
 
 def event_stream(channel_name):
-    redis_client = app.config["REDIS_CLIENT"]
-    # 1. Create a PubSub object
-    pubsub = redis_client.pubsub()
-    
-    # 2. Subscribe to the specific channel for this user group
-    pubsub.subscribe(channel_name)
-    
-    # 3. Listen for messages
-    for message in pubsub.listen():
-        if message['type'] == 'message':
-            # Decode the byte data from Redis
-            data = message['data'].decode('utf-8')
-            
-            # Yield in SSE format
-            yield f"data: {data}\n\n"
+    try:
+        # 1. Create a PubSub object
+        pubsub = redis_client.pubsub()
 
+        # 2. Subscribe to the specific channel for this user group
+        pubsub.subscribe(channel_name)
+
+        # 3. Listen for messages
+        last_keepalive = time.time()
+        while True:
+            # 1. Check for new message with a timeout (non-blocking)
+            message = pubsub.get_message(timeout=10, ignore_subscribe_messages=True)
+            
+            if message and message['type'] == 'message':
+                # Data is already decoded because decode_responses=True
+                yield f"data: {message['data']}\n\n"
+                last_keepalive = time.time()
+            
+            # 2. Send a keep-alive comment every 25 seconds
+            if time.time() - last_keepalive > 25:
+                yield ": keepalive\n\n"
+                last_keepalive = time.time()
+    except Exception as e:
+            logger.info(f"error_in_event_stream: {e}")        
+    finally:
+        pubsub.close()
 
 #streaming connection establishments (like alert notifications)
-#TODO: MUST TEST
+#TODO: create the gunicorn.conf.py
 @TaskPulse_bp.route("/pulse/stream", methods=["GET"])
 def pulse_stream():
     tenant = request.args.get("tenant")
@@ -267,9 +292,11 @@ def pulse_stream():
     # channel_name = f"tenant:{tenant}"
     # return sse.stream()
     redis_channel = f"alert:{tenant}"
-    
     return Response(
         stream_with_context(event_stream(redis_channel)),
-        mimetype='text/event-stream'
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',  # Disables proxy buffering
+        }
     )
-
