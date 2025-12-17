@@ -89,20 +89,7 @@ class BodyMorphEngine:
         trace.append({"stage": "detect_person", "ms": int((time.time() - detect_start) * 1000)})
 
         # ----------------------------------------------------------------------
-        # Segmentation / occlusion (mocked)
-        # ----------------------------------------------------------------------
-        segment_start = time.time()
-        segmentation_result = self._run_adapter("segment_body", self._segment_body, rng_seed, quality)
-        if isinstance(segmentation_result, dict):
-            quality.update(segmentation_result)
-        # Occlusion is embedded in quality; this stage is logged for workflow parity and adapter overrides.
-        trace.append({"stage": "segment_body", "ms": int((time.time() - segment_start) * 1000)})
-
-        # May raise MultiSubjectError; otherwise returns degrade reason
-        degrade_reason = self._guard_quality(quality)
-
-        # ----------------------------------------------------------------------
-        # Pose estimation and segmentation (mocked landmarks)
+        # Pose estimation (mocked landmarks) comes before segmentation to match spec order
         # ----------------------------------------------------------------------
         pose_start = time.time()
         landmarks = self._run_adapter("pose_estimate", self._mock_landmarks, rng_seed)
@@ -111,6 +98,18 @@ class BodyMorphEngine:
         postprocess_start = time.time()
         landmarks = self._run_adapter("postprocess_landmarks", lambda l: l, landmarks)
         trace.append({"stage": "postprocess_landmarks", "ms": int((time.time() - postprocess_start) * 1000)})
+
+        # ----------------------------------------------------------------------
+        # Segmentation / occlusion (mocked) after pose to keep doc-aligned trace ordering
+        # ----------------------------------------------------------------------
+        segment_start = time.time()
+        segmentation_result = self._run_adapter("segment_body", self._segment_body, rng_seed, quality)
+        if isinstance(segmentation_result, dict):
+            quality.update(segmentation_result)
+        trace.append({"stage": "segment_body", "ms": int((time.time() - segment_start) * 1000)})
+
+        # May raise MultiSubjectError; otherwise returns degrade reason
+        degrade_reason = self._guard_quality(quality)
 
         # ----------------------------------------------------------------------
         # Scale normalization then proportion estimation
@@ -157,9 +156,6 @@ class BodyMorphEngine:
             },
             "quality_flags": self._quality_flags(quality, degrade_reason),
         }
-
-        # Total engine elapsed (mock of combined pipeline)
-        trace.append({"stage": "engine_total", "ms": int((time.time() - start) * 1000)})
 
         # Output guardrail
         self._validate_output_shape(result)
@@ -324,7 +320,11 @@ class BodyMorphEngine:
         if forced == "UNKNOWN":
             quality_score = 0.4
 
-        occluded_regions = ["lower_arm_R"] if occlusion > 0.25 else []
+        occluded_regions = []
+        if occlusion > 0.5:
+            occluded_regions = ["torso", "lower_arm_R"]
+        elif occlusion > 0.1:
+            occluded_regions = ["lower_leg_L"]
         return {
             "subjects": subjects,
             "occlusion": occlusion,

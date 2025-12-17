@@ -1264,8 +1264,7 @@ def _process_body_profile_request(
         engine_ms = int((time.time() - engine_start) * 1000)
         total_latency_ms = int((time.time() - start_time) * 1000)
         trace.extend(engine_trace or [])
-        if not any(stage.get("stage") == "engine_total" for stage in trace):
-            trace.append({"stage": "engine_total", "ms": engine_ms})
+        trace = [entry for entry in trace if entry.get("stage") != "engine_total"]
         adjusted_conf = max(0.05, 0.3 - validation_penalty)
         return _respond_with_unknown(
             reason="low_quality",
@@ -1284,8 +1283,7 @@ def _process_body_profile_request(
         engine_ms = int((time.time() - engine_start) * 1000)
         total_latency_ms = int((time.time() - start_time) * 1000)
         trace.extend(engine_trace or [])
-        if not any(stage.get("stage") == "engine_total" for stage in trace):
-            trace.append({"stage": "engine_total", "ms": engine_ms})
+        trace = [entry for entry in trace if entry.get("stage") != "engine_total"]
         adjusted_conf = max(0.05, 0.35 - validation_penalty)
         return _respond_with_unknown(
             reason="heavy_occlusion",
@@ -1304,8 +1302,7 @@ def _process_body_profile_request(
         engine_ms = int((time.time() - engine_start) * 1000)
         total_latency_ms = int((time.time() - start_time) * 1000)
         trace.extend(engine_trace or [])
-        if not any(stage.get("stage") == "engine_total" for stage in trace):
-            trace.append({"stage": "engine_total", "ms": engine_ms})
+        trace = [entry for entry in trace if entry.get("stage") != "engine_total"]
         adjusted_conf = max(0.05, 0.3 - validation_penalty)
         return _respond_with_unknown(
             reason="extreme_perspective",
@@ -1324,8 +1321,7 @@ def _process_body_profile_request(
         engine_ms = int((time.time() - engine_start) * 1000)
         total_latency_ms = int((time.time() - start_time) * 1000)
         trace.extend(engine_trace or [])
-        if not any(stage.get("stage") == "engine_total" for stage in trace):
-            trace.append({"stage": "engine_total", "ms": engine_ms})
+        trace = [entry for entry in trace if entry.get("stage") != "engine_total"]
         adjusted_conf = max(0.05, 0.25 - validation_penalty)
         return _respond_with_unknown(
             reason="unknown_silhouette",
@@ -1398,8 +1394,7 @@ def _process_body_profile_request(
         )
 
     trace.extend(engine_trace or [])
-    if not any(stage.get("stage") == "engine_total" for stage in trace):
-        trace.append({"stage": "engine_total", "ms": engine_ms})
+    trace = [entry for entry in trace if entry.get("stage") != "engine_total"]
 
     # Compose trace and final response
     assembly_start = time.time()
