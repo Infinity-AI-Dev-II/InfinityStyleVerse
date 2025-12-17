@@ -1681,6 +1681,48 @@ def _run_async_body_profile(app, request_id: str, idem_key: str, data: dict, sta
 @bodyMorph_bp.route("/body_profile/async", methods=["POST"])
 @jwt_required()
 @validate_request_size(request, max_json_kb=500)
+@swag_from({
+    "tags": ["StyleSense / BodyMorph"],
+    "summary": "Queue BodyMorph analysis (mocked engine)",
+    "description": "Queues a BodyMorph run and returns a run id for polling. Uses the same payload as the synchronous endpoint.",
+    "requestBody": {
+        "required": True,
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "image_uri": {"type": "string", "example": "https://.../image.jpg?X-Amz-Signature=abc"},
+                        "hints": {
+                            "type": "object",
+                            "example": {"height_cm": 168, "force_failure": "LOW_QUALITY"}
+                        },
+                        "camera": {
+                            "type": "object",
+                            "example": {"fov_deg": 60, "distance_m": 2.0}
+                        }
+                    },
+                    "required": ["image_uri"]
+                }
+            }
+        }
+    },
+    "responses": {
+        202: {
+            "description": "Run queued",
+            "content": {
+                "application/json": {
+                    "example": {"request_id": "req-123", "status": "queued"}
+                }
+            }
+        },
+        400: {"description": "Validation failure (e.g., missing Idempotency-Key or bad JSON)"},
+        401: {"description": "Unauthorized"},
+        503: {"description": "Async disabled"},
+        500: {"description": "Internal server error"}
+    },
+    "security": [{"BearerAuth": []}],
+})
 def body_profile_async():
     """
     Queue BodyMorph processing and return immediately with a run id.
@@ -1744,6 +1786,39 @@ def body_profile_async():
 
 @bodyMorph_bp.route("/body_profile/runs/<string:run_id>", methods=["GET"])
 @jwt_required()
+@swag_from({
+    "tags": ["StyleSense / BodyMorph"],
+    "summary": "Get BodyMorph run status",
+    "description": "Poll the status/trace/response for a BodyMorph run (sync or async).",
+    "parameters": [
+        {
+            "in": "path",
+            "name": "run_id",
+            "required": True,
+            "schema": {"type": "string"},
+            "description": "Run id returned by the sync or async BodyMorph call."
+        }
+    ],
+    "responses": {
+        200: {
+            "description": "Run state",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "run_id": "req-123",
+                        "status": "succeeded",
+                        "response": {"body_type": "hourglass", "confidence": 0.82},
+                        "trace": [{"stage": "load_image_reference", "ms": 25}]
+                    }
+                }
+            }
+        },
+        401: {"description": "Unauthorized"},
+        404: {"description": "Run not found"},
+        500: {"description": "Internal server error"}
+    },
+    "security": [{"BearerAuth": []}],
+})
 def body_profile_status(run_id: str):
     """
     Poll run status/trace for either sync or async BodyMorph runs.
