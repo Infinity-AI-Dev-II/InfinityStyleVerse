@@ -34,6 +34,7 @@ import os
 from flask_caching import Cache
 import redis
 from flask_sse import sse
+import logging
 # Load environment variables
 load_dotenv()
 
@@ -44,6 +45,9 @@ login_manager = LoginManager()
 #worker heartbeat policy cache
 policies_cache = {}
 alertRule = {}
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 def create_app(config_name=None):
     # Base directories
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -60,6 +64,8 @@ def create_app(config_name=None):
     #set the global worker policy cache
     global policies_cache
     policies_cache = getLatestWorkerPolicy()
+    
+    logger.info(f"TEST DATA: {policies_cache.config_json}")
     
     global alertRule
     alertRule = get_Latest_SLA_rule()

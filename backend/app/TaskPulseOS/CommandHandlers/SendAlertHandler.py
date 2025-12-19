@@ -21,6 +21,7 @@ class CreateAlertHandler:
                 ).all()
             
             with get_db_session() as session:
+                count = 0
                 for step_id, run_id in results:
                     alert = Alert(
                         run_id=run_id,
@@ -50,6 +51,7 @@ class CreateAlertHandler:
                         topic='step.failed',
                         value=json.dumps(event).encode("utf-8")
                     )
-            return {"Status": "Success", "Message": alert}
+                    count += 1
+            return {"Status": "Success", "Message": f"Created {count} alerts"}
         except Exception as e:
             return {"Status": "Error", "Message": str(e)}

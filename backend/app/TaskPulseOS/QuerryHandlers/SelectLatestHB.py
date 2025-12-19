@@ -1,6 +1,6 @@
 #select the latest heartbeat entry
 from backend.app.database import get_db_session
-from backend.app.models import Heartbeat
+from backend.app.models.Heartbeat import Heartbeat
 
 def SelectLatestHB():
     try:

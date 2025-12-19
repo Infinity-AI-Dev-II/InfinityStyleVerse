@@ -1,6 +1,6 @@
 
 from backend.app.database import get_db_session
-from backend.app.models import Heartbeat
+from backend.app.models.Heartbeat import Heartbeat
 
 def SaveHeartbeatCmdHnd(command):
     """Handles the SaveHeartbeat command to store heartbeat data."""
@@ -11,6 +11,7 @@ def SaveHeartbeatCmdHnd(command):
                           meta_json=command.meta_json)
         with get_db_session() as session:
             session.add(newHB)
+            session.commit()
         return {"Status": "Success", "Message": newHB}    
     except Exception as e:
         # Handle exceptions and return an error response
